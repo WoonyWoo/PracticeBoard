@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+<head>
+<meta charset="UTF-8" />
+<title>스프링부트 thymeleaf</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+
+<style>
+	.devCss {
+		 text-align: center;
+	}
+</style>
+
+</head>
+<body>
+	
+	<div class="container">
+		<div class="row col-md-7 table-responsive">
+			<table class="table devCss" id="listTable">
+		    <thead>
+			    <tr>
+			         <th>제목</th>
+			         <th>내용</th>
+			         <th>등록한 ID</th>
+			         <th>등록한 날짜</th>
+			     </tr>
+		     </thead>
+		     <tbody>
+		     	<td th:text="${list}"></td>
+		     </tbody>
+		     </table>
+	     </div>
+	</div>
+	
+</body>
+</html>

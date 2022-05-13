@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        
+<mapper namespace="com.ptc.rain.notice.mapper.NoticeMapper">
+
+    <select id="selectNoticeList" parameterType="NoticeDto" resultType="NoticeDto">
+        SELECT 
+        	NOTI_NO
+        	, TITLE
+        	, WRITER
+        	, CONT
+        	, REG_DTIME
+        	, MOD_DTIME
+        	, EXP_YN
+        	, NOTI_TYP
+        	, CMNT_YN
+       	FROM notice;
+    </select>
+    
+</mapper>
