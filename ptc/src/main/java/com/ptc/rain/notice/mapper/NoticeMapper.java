@@ -9,6 +9,8 @@ import com.ptc.rain.notice.dto.NoticeDto;
 @Mapper
 public interface NoticeMapper {
 	
-	List<NoticeDto> selectNoticeList() throws Exception;
+	public List<NoticeDto> selectNoticeList() throws Exception;
+	
+	public void insertNotice(NoticeDto noticeDto) throws Exception;
 
 }

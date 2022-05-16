@@ -57,10 +57,10 @@ body {
 
 <script>
 
-$(function(){ //onLoad되면
+/*$(function(){ //onLoad되면
   //편집기 입히기
   CKEDITOR.replace( 'content' );
-});
+});*/
 
 </script>
 </head>
@@ -70,7 +70,7 @@ $(function(){ //onLoad되면
 <div class="container">
   <div id="w_div">글쓰기</div><br>
   
-  <form id="regist">
+  <form id="registForm" method="post">
   	<div>
         <div>제목</div>
         <input type="text" id="title" class="insert_box" placeholder="제목을 입력해주세요">
@@ -82,37 +82,105 @@ $(function(){ //onLoad되면
     <div>
     	<div>공개여부</div>
     	<div class="insert_box">
+	        <input type="radio" id="expY" name="expYn" value="Y">
 	        <label for="expY">공개 </label>
-	        <input type="radio" id="expY" name="expYn">
+	        <input type="radio" id="expN" name="expYn" value="N">
 	        <label for="expN">비공개 </label>
-	        <input type="radio" id="expN"  name="expYn">
         </div>
     </div>
     <div>
 		<div>게시글 유형</div>
-		<div class="insert_box">
-	        <input type="checkbox" id="all">
-	        <label for="all">전체</label>
+		<div class="insert_box" id="notiTyp">	
+	        <input type="checkbox" value="FREE" id="notiTyp1" name="notiTyp">
+	        <label for="notiTyp1">자유</label>
+	        <input type="checkbox" value="ANON" id="notiTyp2" name="notiTyp">
+	        <label for="notiTyp2">익명</label>
+	        <input type="checkbox" value="SCRT" id="notiTyp3" name="notiTyp">
+	        <label for="notiTyp3">비밀</label>
 		</div>
     </div>
     <div>
 		<div>댓글 허용여부</div>
-		<select>
-			<option>전체</option>
+		<select id="cmntYn">
+			<option value="">==선택==</option>
+			<option value="Y">허용</option>
+			<option value="N">허용안함</option>
 		</select>
     </div>
+    <br>
     <div>
-        <label for="content">내용</label>
+        <div>내용</div>
         <textarea id="content" class="insert_box textarea"></textarea>
     </div>
     
     <br>
-    <input type="button" class="blue_button hover_button" th:value="등록">
-    <input type="button" class="blue_button hover_button" th:value="목록">
+    <input type="button" onclick="registNotice()" class="blue_button hover_button" th:value="등록">
+    <input type="button" onclick="selectNoticeList()" class="blue_button hover_button" th:value="목록">
   </form>
 
 </div>
 
 </th:block>
 </body>
+<script type="text/javascript">
+
+
+// 글 등록
+function registNotice(){
+	
+	if(confirm('글을 등록하시겠습니까?')){
+		
+		// 게시물 유형 배열
+		var chkTyp = [];
+		$('input[name=notiTyp]:checked').each(function(){
+			chkTyp.push($(this).val());
+		});
+		// 게시물 유형 ,로 나눈 문자열로 변환
+		var notiTyp = chkTyp.join(',');
+		
+		// 전송 데이터
+		var formData = {
+			title : $("#title").val(),
+			writer : $("#writer").val(),
+			expYn : $('input[name=expYn]:checked').val(),
+			notiTyp : notiTyp, 
+			cmntYn : $("#cmntYn").val(),
+			cont : $("#content").val(),
+		}
+		
+		// Validation Check	
+		if(formData.title == ""){
+			alert('제목을 입력해주세요.')
+		}else if(formData.writer == ""){
+			alert('작성자를 입력해주세요.')
+		}else if(formData.expYn == null){
+			alert('공개여부를 선택해주세요.')
+		}else if(chkTyp.length == 0){
+			alert('게시물 유형을 선택해주세요.')
+		}else if(formData.cmntYn == ""){
+			alert('댓글 허용여부를 선택해주세요.')
+		}else if(formData.cont == ""){
+			alert('내용을 입력해주세요.')
+		}
+		
+		console.log(formData);
+		
+		$.ajax({
+			type: "POST",
+			url: "/registNotice",
+			contentType: "application/json; charset=UTF-8",
+			data: JSON.stringify(formData),
+			dataType: "json",
+			success: function(data){
+				alert('글이 등록되었습니다.');
+			}
+		});
+	
+	}else{
+		alert('글 등록을 취소하셨습니다.')
+	}
+
+}
+
+</script>
 </html>

@@ -10,12 +10,32 @@
         	, TITLE
         	, WRITER
         	, CONT
+        	, REGR
         	, REG_DTIME
+        	, MODR
         	, MOD_DTIME
         	, EXP_YN
         	, NOTI_TYP
         	, CMNT_YN
        	FROM notice;
     </select>
+    
+    <insert id="insertNotice" parameterType="NoticeDto">
+    	INSERT INTO notice(
+			TITLE
+			,WRITER
+			,CONT
+			,EXP_YN
+			,NOTI_TYP
+			,CMNT_YN
+		) VALUES(
+			#{title},
+			#{writer},
+			#{cont},
+			#{expYn},
+			#{notiTyp},
+			#{cmntYn}
+		)
+    </insert>
     
 </mapper>

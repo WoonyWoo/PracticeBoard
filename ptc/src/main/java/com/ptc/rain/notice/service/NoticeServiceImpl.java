@@ -19,6 +19,16 @@ public class NoticeServiceImpl implements NoticeService{
 		
 		return noticeMapper.selectNoticeList();
 	}
+
+	@Override
+	public void insertNotice(NoticeDto noticeDto) throws Exception {
+		
+	    try {
+	    	noticeMapper.insertNotice(noticeDto);
+	    } catch(Exception e) {
+	    	e.printStackTrace();
+	    }
+	}
 	
 	
 	

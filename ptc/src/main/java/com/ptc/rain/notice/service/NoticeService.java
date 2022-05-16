@@ -5,5 +5,7 @@ import com.ptc.rain.notice.dto.NoticeDto;
 
 public interface NoticeService {
 	
-	List<NoticeDto> selectNoticeList() throws Exception;
+	public List<NoticeDto> selectNoticeList() throws Exception;
+	
+	public void insertNotice(NoticeDto noticeDto) throws Exception;
 }
