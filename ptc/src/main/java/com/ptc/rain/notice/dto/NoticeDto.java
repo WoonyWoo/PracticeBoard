@@ -18,5 +18,6 @@ public class NoticeDto {
 	private String expYn;
 	private String notiTyp;
 	private String cmntYn;
+	private String delYn;
 	
 }

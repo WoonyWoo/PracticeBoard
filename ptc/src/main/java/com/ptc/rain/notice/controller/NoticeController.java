@@ -40,11 +40,37 @@ public class NoticeController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public ModelAndView moveList() throws Exception{
 		
-		ModelAndView mv = new ModelAndView("test");
+		ModelAndView mv = new ModelAndView("layout/noticeList");
 		
 		List<NoticeDto> list = noticeService.selectNoticeList();
 		
 		mv.addObject("list", list);
+		
+		return mv;
+	}
+	
+	// 게시글 상세 화면 이동
+	/*@RequestMapping(value = "/detail", method = RequestMethod.GET)
+	public ModelAndView moveDetail(@RequestParam int notiNo, ModelAndView mv) throws Exception{
+		
+		mv = new ModelAndView("layout/noticeDetail");
+		
+		NoticeDto result = noticeService.selectNoticeOne(notiNo);
+		
+		mv.addObject("notice", result);
+		
+		return mv;
+	}*/
+	
+	// 게시글 상세 화면 이동
+	@RequestMapping(value = "/detail")
+	public ModelAndView test(@RequestParam int notiNo) throws Exception{
+		
+		ModelAndView mv = new ModelAndView("layout/noticeDetail");
+		
+		NoticeDto result = noticeService.selectNoticeOne(notiNo);
+		
+		mv.addObject("notice", result);
 		
 		return mv;
 	}
@@ -55,6 +81,24 @@ public class NoticeController {
 	public void noticeRegist(@RequestBody NoticeDto notice) throws Exception{
 		
 		noticeService.insertNotice(notice);
+		
+	}
+	
+	// 게시글 수정
+	@RequestMapping(value = "/updateNotice", method = RequestMethod.POST)
+	@ResponseBody
+	public void noticeUpdate(@RequestBody NoticeDto notice) throws Exception{
+		
+		noticeService.updateNotice(notice);
+		
+	}
+	
+	// 게시글 삭제
+	@RequestMapping(value = "/deleteNotice", method = RequestMethod.POST)
+	@ResponseBody
+	public void noticeDelete(@RequestBody NoticeDto notice) throws Exception{
+		
+		noticeService.deleteNotice(notice.getNotiNo());
 		
 	}
 

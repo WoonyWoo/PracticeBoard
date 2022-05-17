@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/defaultLayout}">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/css/navbar-top.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+body{
+    margin: 0px;
+}
+.container{
+    border-radius: 5px;
+    padding: 20px;
+    width: 80%;
+    margin: auto;
+    height: 1000px;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+}
+th, td {
+  text-align: center;
+  padding: 16px;
+}
+td{
+    border-bottom: 1px solid lightgray;
+}
+th{
+    border-bottom: 1px solid #093687;
+}
+a{
+    text-decoration: none; /* 밑줄 제거 */
+}
+.pageNum{
+    font-size:20px;
+    font-weight:bold;
+    color:blue;
+}
+button {
+    background-color: #0063DD;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+}
+#registbtn{
+    width: 100px;
+    border-radius: 15px;
+    float: right;
+}
+button:hover {
+opacity: 0.8;
+}
+#t_div{
+    width: 100%;
+    height: 50px;
+    border-bottom: 3px solid #093687;
+    font-size: 30px;
+}
+#search_list{
+    padding: 5px;
+    margin: auto;
+    clear: both;
+    width: 500px;
+}
+#searchbtn{
+    padding-top: 5px;
+    padding-bottom: 25px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script th:inline="javascript" type="text/javascript">
+
+function moveDetail(notiNo){
+	
+	// 전송 데이터
+	var formData = {
+		notiNo : notiNo,
+	}
+	console.log(notiNo);
+	$.ajax({
+		type: "GET",
+		url: "/detail",
+		data: notiId,
+		success: function(data){
+			console.log(data);
+		}
+	});
+}
+
+function test(){
+	location.href="/detail?notiNo=2"
+}
+
+</script>
+
+</head>
+<body>
+
+<div class="container">
+    <div id="t_div">게시글 목록</div>
+    <table>
+        <thead>
+	        <tr>
+	            <th>No</th>
+	            <th>제목</th>
+	            <th>작성자</th>
+	            <th>등록일</th>
+	            <th>수정일</th>
+	            <th>댓글 허용여부</th>
+	        </tr>
+        </thead>
+        <tbody th:each="notice,idx : ${list}">
+        	<!--<tr th:onclick="moveDetail( [[ ${notice.notiNo} ]] )">-->
+        	<tr>
+        		<td th:text="${idx.index+1}"></td>
+        		<td><a href="/detail?notiNo=" th:attrappend="href=${notice.notiNo}" th:text="${notice.title}"/></td>
+        		<!--<td th:text="${notice.title}"></td>-->
+        		<td th:text="${notice.writer}"></td>
+        		<td th:text="${notice.regDtime}"></td>
+        		<td th:text="${notice.modDtime}"></td>
+        		<td th:text="${notice.cmntYn}"></td>
+    		</tr>
+        </tbody>
+        
+    </table>
+    
+    <div style="width: 100%;">
+        <button id="registbtn" onclick="location.href='/regist'">글 등록</button>
+    </div>
+    
+    <div id="search_list">
+        <form id="search_form">
+            <select name="category" id="category" style="border:5px solid#0063DD">
+                <option value="title">제목</option>
+                <option value="writer">글쓴이</option>
+            </select>
+            <input type="text" id="keyword" name="keyword" placeholder="검색어를 입력하세요" style="width: 300px; border:5px solid#0063DD">
+            <button type="button" id="searchbtn" style="height: 20px;" onclick="test()"><i class='fa fa-search'></i></button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
