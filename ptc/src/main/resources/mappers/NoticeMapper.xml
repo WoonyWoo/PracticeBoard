@@ -7,7 +7,8 @@
 	<!-- 게시물 목록 조회 -->
     <select id="selectNoticeList" parameterType="NoticeDto" resultType="NoticeDto">
         SELECT 
-        	NOTI_NO
+        	@rownum := @rownum+1 as RN
+        	, NOTI_NO
         	, TITLE
         	, WRITER
         	, CONT
@@ -19,9 +20,14 @@
         	, NOTI_TYP
         	, CMNT_YN
         	, DEL_YN
-       	FROM notice
+       	FROM notice,
+       		(select @rownum :=0) AS r
        	WHERE 1=1
     		AND DEL_YN = "N"
+   		<if test="ttl != '' and ttl != null">
+   			AND TITLE LIKE "%#{ttl}%"
+   		</if>
+   		ORDER BY RN DESC
     </select>
     
     <!-- 게시물 1개 조회 -->
@@ -88,5 +94,60 @@
     		MOD_DTIME = CURRENT_TIMESTAMP
    		WHERE NOTI_NO = #{notiNo}
     </update>
+    
+    <!-- 게시물 총 개수 -->
+    <select id="selectNoticeListTotalCount" resultType="int">
+    	SELECT COUNT(*)
+    	FROM (
+    		SELECT 
+        	NOTI_NO
+        	, TITLE
+        	, WRITER
+        	, CONT
+        	, REGR
+        	, REG_DTIME
+        	, MODR
+        	, MOD_DTIME
+        	, EXP_YN
+        	, NOTI_TYP
+        	, CMNT_YN
+        	, DEL_YN
+       	FROM notice
+       	WHERE 1=1
+    		AND DEL_YN = "N"
+    	) T1
+    </select>
+    
+    <!-- RW 추가한 게시물 목록 조회 -->
+    <select id="selectNoticePageList" parameterType="java.util.Map" resultType="NoticeDto">
+    	SELECT
+			T2.*
+		FROM (
+			SELECT
+				@rownum := @rownum+1 as RN
+				, T1.*
+			FROM (
+				SELECT 
+		        	NOTI_NO
+		        	, TITLE
+		        	, WRITER
+		        	, CONT
+		        	, REGR
+		        	, REG_DTIME
+		        	, MODR
+		        	, MOD_DTIME
+		        	, EXP_YN
+		        	, NOTI_TYP
+		        	, CMNT_YN
+		        	, DEL_YN
+		       	FROM notice
+		       	WHERE 1=1
+		    		AND DEL_YN = "N"
+		    	) T1,
+		    	(select @rownum :=0) AS r
+			WHERE @rownum <![CDATA[ < ]]> #{paging.endPageNo}
+		) T2
+		WHERE T2.RN <![CDATA[ >= ]]> #{paging.startPageNo};
+    </select>
     
 </mapper>

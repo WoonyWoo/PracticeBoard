@@ -4,6 +4,7 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/defaultLayout}">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
@@ -63,7 +64,7 @@ opacity: 0.8;
     clear: both;
     width: 500px;
 }
-#searchbtn{
+#srchBtn{
     padding-top: 5px;
     padding-bottom: 25px;
     padding-left: 10px;
@@ -142,18 +143,17 @@ function test(){
 	            <th>댓글 허용여부</th>
 	        </tr>
         </thead>
-        <tbody th:each="notice,idx : ${list}">
+        <tbody th:each="notice,idx : ${noticePage}">
         	<tr>
-        		<td th:text="${idx.index+1}"></td>
-        		<!--<td><a href="/detail?notiNo=" th:attrappend="href=${notice.notiNo}" th:text="${notice.title}"/></td>-->
-        		<td><a th:href="@{/detail(notiNo=${notice.notiNo})}"th:text="${notice.title}"/></td>
+        		<td th:text="${notice.rn}"></td>
+        		<td><a th:href="@{/detail(notiNo=${notice.notiNo}, page=${noticePage.number + 1})}"th:text="${notice.title}"/></td>
         		<td th:text="${notice.writer}"></td>
         		<td th:text="${notice.regDtime}"></td>
         		<td th:text="${notice.modDtime}"></td>
         		<td th:text="${notice.cmntYn}"></td>
     		</tr>
         </tbody>
-        
+       
     </table>
     
     <div style="width: 100%;" class="pagination">
@@ -161,28 +161,33 @@ function test(){
     </div>
     
     <div class="center">
-	    <div class="pagination">
-			<a href="#">&laquo;</a>
-			<a href="#">❮</a>
-			<th:block th:each="num, idx : ${#numbers.sequence(1,5)}">
-				<a href="#">1</a>
+	    <div th:if="${noticePage.totalPages > 0}" class="pagination">
+			<a th:if="${noticePage.number > 0}" th:href="@{/listNotices(size=${noticePage.size}, page=1)}">&laquo;</a>
+			<a th:if="${noticePage.number > 0}" th:href="@{/listNotices(size=${noticePage.size}, page=${noticePage.number})}">❮</a>
+			<th:block th:each="pageNumber : ${pageNumbers}">
+				<a th:href="@{/listNotices(size=${noticePage.size}, page=${pageNumber})}" 
+					th:text="${pageNumber}" th:class="${pageNumber==noticePage.number + 1} ? active">1</a>
 			</th:block>
-			<a href="#">❯</a>
-	  		<a href="#">&raquo;</a>
-			<!--<a href="#" class="active">2</a>-->
+			<a th:if="${noticePage.number} < ${noticePage.totalPages - 1}" th:href="@{/listNotices(size=${noticePage.size}, page=${noticePage.number + 2})}">❯</a>
+	  		<a th:if="${noticePage.number} < ${noticePage.totalPages - 1}" th:href="@{/listNotices(size=${noticePage.size}, page=${noticePage.totalPages})}">&raquo;</a>
 		</div>
 	</div>
     
-    <div id="search_list">
-        <form id="search_form">
-            <select name="category" id="category" style="border:5px solid#0063DD">
-                <option value="title">제목</option>
-                <option value="writer">글쓴이</option>
+    <!-- SearchForm -->
+    <form id="searchForm">
+	    <div id="search_list">
+        
+            <select id="srchTyp" style="border:5px solid#0063DD">
+                <option value="ttl">제목</option>
+                <option value="wrt">작성자</option>
+                <option value="cont">내용</option>
             </select>
+            
             <input type="text" id="keyword" name="keyword" placeholder="검색어를 입력하세요" style="width: 300px; border:5px solid#0063DD">
-            <button type="button" id="searchbtn" style="height: 20px;" onclick="test()"><i class='fa fa-search'></i></button>
-        </form>
-    </div>
+            <button type="button" id="srchBtn" style="height: 20px;" onclick=""><i class='fa fa-search'></i></button>
+		</div>
+    </form>
+    
 </div>
 
 </body>

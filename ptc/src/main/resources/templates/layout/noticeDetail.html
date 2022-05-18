@@ -104,7 +104,7 @@ body {
     <div>
 		<div>댓글 허용여부</div>
 		<select id="cmntYn" th:value="${notice.cmntYn}">
-			<option value="" selected="${notice.cmntYn}==''">==선택==</option>
+			<option value="" th:selected="${notice.cmntYn}==''">==선택==</option>
 			<option value="Y" th:selected="${notice.cmntYn}=='Y'">허용</option>
 			<option value="N" th:selected="${notice.cmntYn}=='N'">허용안함</option>
 		</select>
@@ -117,7 +117,7 @@ body {
     
     <br>
     <input type="button" onclick="updateNotice()" class="blue_button hover_button" th:value="수정">
-    <input type="button" onclick="location.href='/list'" class="blue_button hover_button" th:value="목록" >
+    <input type="button" th:onclick="|location.href='@{/listNotices(page=${page})}'|" class="blue_button hover_button" th:value="목록" >
     <input type="button" onclick="deleteNotice()" class="blue_button hover_button" th:value="삭제" >
   </form>
 
@@ -195,7 +195,7 @@ function updateNotice(){
 			data: JSON.stringify(formData),
 			success: function(data){
 				alert('글이 수정되었습니다.');
-				location.href="/list";
+				location.href="/listNotices";
 			}
 		});
 	

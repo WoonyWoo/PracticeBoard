@@ -115,7 +115,7 @@ body {
     
     <br>
     <input type="button" onclick="registNotice()" class="blue_button hover_button" th:value="등록">
-    <input type="button" onclick="location.href='/list'" class="blue_button hover_button" th:value="목록" >
+    <input type="button" onclick="location.href='/listNotices'" class="blue_button hover_button" th:value="목록" >
   </form>
 
 </div>
@@ -151,16 +151,22 @@ function registNotice(){
 		// Validation Check	
 		if(formData.title == ""){
 			alert('제목을 입력해주세요.')
+			return;
 		}else if(formData.writer == ""){
 			alert('작성자를 입력해주세요.')
+			return;
 		}else if(formData.expYn == null){
 			alert('공개여부를 선택해주세요.')
+			return;
 		}else if(chkTyp.length == 0){
 			alert('게시물 유형을 선택해주세요.')
+			return;
 		}else if(formData.cmntYn == ""){
 			alert('댓글 허용여부를 선택해주세요.')
+			return;
 		}else if(formData.cont == ""){
 			alert('내용을 입력해주세요.')
+			return;
 		}
 		
 		console.log(formData);
@@ -172,7 +178,7 @@ function registNotice(){
 			data: JSON.stringify(formData),
 			success: function(data){
 				alert('글이 등록되었습니다.');
-				location.href="/list";
+				location.href="/listNotices";
 			}
 		});
 	
