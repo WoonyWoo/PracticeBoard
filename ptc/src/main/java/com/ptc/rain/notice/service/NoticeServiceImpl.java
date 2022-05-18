@@ -111,7 +111,7 @@ public class NoticeServiceImpl implements NoticeService{
 		// PageRequst.of(int page, int size, Sort.Direction direction, String ...props) - 페이지 번호, 페이지당 데이터의 수, 정렬 방향, 속성(칼럼)들
 		// PageRequst.of(int page, int size, Sort sort) - 페이지 번호, 페이지당 데이터의 수, 정렬방향
 		Page<NoticeDto> noticePage
-			= new PageImpl<NoticeDto>(list, PageRequest.of(currentPage, pageSize, Sort.by("rn")), notices.size()); 
+			= new PageImpl<NoticeDto>(list, PageRequest.of(currentPage, pageSize), notices.size()); 
 		
 		return noticePage;
 	}

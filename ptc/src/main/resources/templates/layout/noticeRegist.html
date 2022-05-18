@@ -116,6 +116,7 @@ body {
     <br>
     <input type="button" onclick="registNotice()" class="blue_button hover_button" th:value="등록">
     <input type="button" onclick="location.href='/listNotices'" class="blue_button hover_button" th:value="목록" >
+    <!--<input type="button" onclick="moveList()" class="blue_button hover_button" th:value="목록" >-->
   </form>
 
 </div>
@@ -123,6 +124,25 @@ body {
 </th:block>
 </body>
 <script type="text/javascript">
+
+// 글 목록으로 이동
+function moveList(){
+	
+	// 전송 데이터
+	var formData = {
+		notiNo : "1",
+	}
+	
+	$.ajax({
+		type: "GET",
+		url: "/detail",
+		data: notiId,
+		success: function(data){
+			console.log(data);
+		}
+	});
+	
+}
 
 
 // 글 등록

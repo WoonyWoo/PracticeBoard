@@ -121,8 +121,23 @@ function moveDetail(notiNo){
 	});
 }
 
-function test(){
-	location.href="/detail?notiNo=2"
+function searchList(){
+	
+	// Search Data
+	/*var searchData = {
+		ttl : "제목",
+	}
+	
+	
+	$.ajax({
+		type: "POST",
+		url: "/listNotices",
+		contentType: "application/json; charset=UTF-8",
+		data: JSON.stringify(searchData),
+		success: function(data){
+			console.log(data);
+		}
+	});*/
 }
 
 </script>
@@ -184,7 +199,7 @@ function test(){
             </select>
             
             <input type="text" id="keyword" name="keyword" placeholder="검색어를 입력하세요" style="width: 300px; border:5px solid#0063DD">
-            <button type="button" id="srchBtn" style="height: 20px;" onclick=""><i class='fa fa-search'></i></button>
+            <button type="button" id="srchBtn" style="height: 20px;" onclick="searchList()"><i class='fa fa-search'></i></button>
 		</div>
     </form>
     

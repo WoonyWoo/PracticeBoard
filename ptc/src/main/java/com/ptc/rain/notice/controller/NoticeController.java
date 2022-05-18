@@ -93,7 +93,10 @@ public class NoticeController {
 	@ResponseBody
 	public void noticeRegist(@RequestBody NoticeDto notice) throws Exception{
 		
-		noticeService.insertNotice(notice);
+		NoticeDto nd = new NoticeDto();
+		nd = notice;
+		
+		noticeService.insertNotice(nd);
 		
 	}
 	
@@ -102,7 +105,10 @@ public class NoticeController {
 	@ResponseBody
 	public void noticeUpdate(@RequestBody NoticeDto notice) throws Exception{
 		
-		noticeService.updateNotice(notice);
+		NoticeDto nd = new NoticeDto();
+		nd = notice;
+		
+		noticeService.updateNotice(nd);
 		
 	}
 	
@@ -111,7 +117,10 @@ public class NoticeController {
 	@ResponseBody
 	public void noticeDelete(@RequestBody NoticeDto notice) throws Exception{
 		
-		noticeService.deleteNotice(notice.getNotiNo());
+		NoticeDto nd = new NoticeDto();
+		nd = notice;
+		
+		noticeService.deleteNotice(nd.getNotiNo());
 		
 	}
 	
@@ -144,7 +153,8 @@ public class NoticeController {
 	
 	// 게시글 목록 조회(페이징)
 	@RequestMapping(value = "/listNotices", method = RequestMethod.GET)
-	public ModelAndView listNotices(@RequestBody(required = false) NoticeDto nd, @RequestParam("page") Optional<Integer> page, @RequestParam("size") Optional<Integer> size, ModelAndView mv) throws Exception {
+	public ModelAndView listNotices(@RequestParam(required = false) NoticeDto nd, 
+			@RequestParam("page") Optional<Integer> page, @RequestParam("size") Optional<Integer> size, ModelAndView mv) throws Exception {
 		
 		// orElse: Optional 클래스의 기능, 값이 null이면 대체 값으로 넣음
 		int currentPage = page.orElse(1); // 현재 페이지(Default) : 1 페이지
