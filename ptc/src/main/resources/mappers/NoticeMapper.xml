@@ -143,6 +143,7 @@
 		       	FROM notice
 		       	WHERE 1=1
 		    		AND DEL_YN = "N"
+		    	ORDER BY NOTI_NO DESC
 		    	) T1,
 		    	(select @rownum :=0) AS r
 			WHERE @rownum <![CDATA[ < ]]> #{paging.endPageNo}

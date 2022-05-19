@@ -13,11 +13,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.ptc.rain.notice.dto.NoticeCd;
@@ -27,20 +29,23 @@ import com.ptc.rain.notice.dto.PagingDto;
 import com.ptc.rain.notice.dto.ResultDto;
 import com.ptc.rain.notice.service.NoticeService;
 
-@Controller
+@RestController
 public class NoticeController {
 	
-	private static final Logger Log = LoggerFactory.getLogger(NoticeController.class);
+	private static final Logger logger = LoggerFactory.getLogger(NoticeController.class);
 	
 	@Autowired
 	private NoticeService noticeService;
 	
 	// 게시글 등록 화면 이동
 	@RequestMapping(value = "/regist", method = RequestMethod.GET)
-	public ModelAndView moveRegist() throws Exception{
+	public ModelAndView moveRegist(@RequestParam("page") Optional<Integer> page) throws Exception{
 		
 		ModelAndView mv = new ModelAndView("layout/noticeRegist");
 		
+		int currentPage = page.orElse(1);
+		
+		mv.addObject("page", currentPage);
 		
 		return mv;
 	}
@@ -73,7 +78,7 @@ public class NoticeController {
 	}*/
 	
 	// 게시글 상세 화면 이동
-	@RequestMapping(value = "/detail")
+	@RequestMapping(value = "/detail", method = RequestMethod.GET)
 	public ModelAndView test(@RequestParam int notiNo, @RequestParam("page") Optional<Integer> page) throws Exception{
 		
 		ModelAndView mv = new ModelAndView("layout/noticeDetail");
@@ -90,7 +95,6 @@ public class NoticeController {
 	
 	// 게시글 등록
 	@RequestMapping(value = "/registNotice", method = RequestMethod.POST)
-	@ResponseBody
 	public void noticeRegist(@RequestBody NoticeDto notice) throws Exception{
 		
 		NoticeDto nd = new NoticeDto();
@@ -102,7 +106,6 @@ public class NoticeController {
 	
 	// 게시글 수정
 	@RequestMapping(value = "/updateNotice", method = RequestMethod.POST)
-	@ResponseBody
 	public void noticeUpdate(@RequestBody NoticeDto notice) throws Exception{
 		
 		NoticeDto nd = new NoticeDto();
@@ -114,7 +117,6 @@ public class NoticeController {
 	
 	// 게시글 삭제
 	@RequestMapping(value = "/deleteNotice", method = RequestMethod.POST)
-	@ResponseBody
 	public void noticeDelete(@RequestBody NoticeDto notice) throws Exception{
 		
 		NoticeDto nd = new NoticeDto();
@@ -126,18 +128,13 @@ public class NoticeController {
 	
 	// 게시글 목록 조회(페이징)
 	@RequestMapping(value = "/listPage", method = RequestMethod.GET)
-	public ModelAndView selectNoticeList(NoticeDto notice) throws Exception{
+	public ModelAndView selectNoticeList() throws Exception{
 		
 		ModelAndView mv = new ModelAndView("layout/noticeList");
 		
 		PagingDto pg = new PagingDto();
 		
-		if(notice == null) {
-			pg.setPerPage(5);
-			pg.setCurrentPage(1);
-		}
-		
-		pg.setPerPage(5); 
+		pg.setPerPage(5); // 페이지당 게시물 수 5개 
 		pg.setCurrentPage(1);
 		
 		NoticeDto noticeDto = new NoticeDto();
@@ -151,7 +148,7 @@ public class NoticeController {
 		return mv;
 	}
 	
-	// 게시글 목록 조회(페이징)
+	// 게시글 목록 조회(Pageable) - 전체 조회라서 속도 이슈
 	@RequestMapping(value = "/listNotices", method = RequestMethod.GET)
 	public ModelAndView listNotices(@RequestParam(required = false) NoticeDto nd, 
 			@RequestParam("page") Optional<Integer> page, @RequestParam("size") Optional<Integer> size, ModelAndView mv) throws Exception {

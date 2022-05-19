@@ -115,7 +115,7 @@ body {
     
     <br>
     <input type="button" onclick="registNotice()" class="blue_button hover_button" th:value="등록">
-    <input type="button" onclick="location.href='/listNotices'" class="blue_button hover_button" th:value="목록" >
+    <input type="button" th:onclick="|location.href='@{/listNotices(page=${page})}'|" class="blue_button hover_button" th:value="목록" >
     <!--<input type="button" onclick="moveList()" class="blue_button hover_button" th:value="목록" >-->
   </form>
 
@@ -160,12 +160,12 @@ function registNotice(){
 		
 		// 전송 데이터
 		var formData = {
-			title : $("#title").val(),
-			writer : $("#writer").val(),
+			title : $.trim($("#title").val()),
+			writer : $.trim($("#writer").val()),
 			expYn : $('input[name=expYn]:checked').val(),
 			notiTyp : notiTyp, 
 			cmntYn : $("#cmntYn").val(),
-			cont : $("#content").val(),
+			cont : $.trim($("#content").val()),
 		}
 		
 		// Validation Check	

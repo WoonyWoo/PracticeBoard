@@ -121,6 +121,25 @@ function moveDetail(notiNo){
 	});
 }
 
+function test(){
+	
+	var formData = {
+		ttl: "ttl",
+		title: "hello"
+	}
+	
+	$.ajax({
+		type: "GET",
+		url: "/regist2",
+		contentType: "application/json; charset=UTF-8",
+		data: JSON.stringify(formData),
+		success: function(data){
+			console.log(data);
+		}
+	});
+	
+}
+
 function searchList(){
 	
 	// Search Data
@@ -172,7 +191,7 @@ function searchList(){
     </table>
     
     <div style="width: 100%;" class="pagination">
-        <button id="registbtn" onclick="location.href='/regist'">글 등록</button>
+        <button id="registbtn" th:onclick="|location.href='@{/regist(page=${noticePage.number + 1})}'|">글 등록</button>
     </div>
     
     <div class="center">

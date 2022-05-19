@@ -109,7 +109,7 @@ function moveDetail(notiNo){
 	var formData = {
 		notiNo : notiNo,
 	}
-	console.log(notiNo);
+	
 	$.ajax({
 		type: "GET",
 		url: "/detail",
@@ -134,7 +134,8 @@ function test(){
     <table>
         <thead>
 	        <tr>
-	            <th>No</th>
+	            <th>#</th>
+	            <th>번호</th>
 	            <th>제목</th>
 	            <th>작성자</th>
 	            <th>등록일</th>
@@ -144,8 +145,8 @@ function test(){
         </thead>
         <tbody th:each="notice,idx : ${list}">
         	<tr>
-        		<td th:text="${idx.index+1}"></td>
-        		<!--<td><a href="/detail?notiNo=" th:attrappend="href=${notice.notiNo}" th:text="${notice.title}"/></td>-->
+        		<td th:text="${notice.rn}"></td>
+        		<td th:text="${notice.notiNo}"></td>
         		<td><a th:href="@{/detail(notiNo=${notice.notiNo})}"th:text="${notice.title}"/></td>
         		<td th:text="${notice.writer}"></td>
         		<td th:text="${notice.regDtime}"></td>

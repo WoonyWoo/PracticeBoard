@@ -163,12 +163,12 @@ function updateNotice(){
 		// 전송 데이터
 		var formData = {
 			notiNo: $("#notiNo").val(),
-			title : $("#title").val(),
-			writer : $("#writer").val(),
+			title : $.trim($("#title").val()),
+			writer : $.trim($("#writer").val()),
 			expYn : $('input[name=expYn]:checked').val(),
 			notiTyp : notiTyp, 
 			cmntYn : $("#cmntYn").val(),
-			cont : $("#content").val(),
+			cont : $.trim($("#content").val()),
 		}
 		
 		// Validation Check	
