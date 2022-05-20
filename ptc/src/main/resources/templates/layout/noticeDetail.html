@@ -4,15 +4,12 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/defaultLayout}">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8">    
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
+<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 <style>
-body {
-  font-family: Arial, Helvetica, sans-serif;  
-  margin: 0px;
-}
-.insert_box {
+body {font-family: Arial, Helvetica, sans-serif; margin: 0px;}
+.insert_box{
   width: 100%;
   padding: 12px;
   border: 1px solid #ccc;
@@ -22,16 +19,17 @@ body {
   margin-bottom: 16px;
   resize: vertical;
 }
-.textarea{
-  height: 200px;
+textarea{
+  height:100px;
 }
 .blue_button {
   background-color: #0063DD;
   color: white;
   padding: 12px 20px;
   border: none;
-  border-radius: 15px;
+  border-radius: 4px;
   cursor: pointer;
+  border-radius: 15px;
 }
 .hover_button:hover {
   opacity: 0.8;
@@ -41,171 +39,36 @@ body {
   padding: 20px;
   width: 80%;
   margin: auto;
-  height: 800px;
+  height: 1200px;
 }
-#w_div{
+.comment-list div{
+  display:inline-block; /*block속성(크기 가능)을 유지하되, 공존할수있슴*/
+}
+#title_div{
   width: 100%;
   height: 50px;
   border-top:3px solid #093687 ;
   border-bottom: 1px solid #093687;
   font-size: 30px;
 }
+.sibal{
+  float: left;
+  text-align: center;
+  padding: 10px;
+  border-top:3px solid #093687 ;
+  border-bottom: 1px solid #093687;
+}
 </style>
-
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
+<script src="/js/Comments.js"></script>
 
-<script>
-
-/*$(function(){ //onLoad되면
-  //편집기 입히기
-  CKEDITOR.replace( 'content' );
-});*/
-
-</script>
-</head>
-
-<body>
-<th:block layout:fragment="content">
-<div class="container">
-  <div id="w_div">글쓰기</div><br>
-  
-  <form id="updateForm" method="post">
-  <input type="hidden" id="notiTypVal" th:value="${notice.notiTyp}">
-  <input type="hidden" id="notiNo" th:value="${notice.notiNo}">
-  	<div>
-        <div>제목</div>
-        <input type="text" id="title" class="insert_box" placeholder="제목을 입력해주세요" th:value="${notice.title}">
-    </div>
-    <div>
-        <div>작성자</div>
-        <input type="text" id="writer" class="insert_box" placeholder="작성자를 입력해주세요" th:value="${notice.writer}">
-    </div>
-    <div>
-    	<div>공개여부</div>
-    	<div class="insert_box">
-	        <input type="radio" id="expY" name="expYn" value="Y" th:checked="${notice.expYn}=='Y'">
-	        <label for="expY">공개 </label>
-	        <input type="radio" id="expN" name="expYn" value="N" th:checked="${notice.expYn}=='N'">
-	        <label for="expN">비공개 </label>
-        </div>
-    </div>
-    <div>
-		<div>게시글 유형</div>
-		<div class="insert_box" id="notiTyp">	
-	        <input type="checkbox" value="FREE" id="notiTyp1" name="notiTyp">
-	        <label for="notiTyp1">자유</label>
-	        <input type="checkbox" value="ANON" id="notiTyp2" name="notiTyp">
-	        <label for="notiTyp2">익명</label>
-	        <input type="checkbox" value="SCRT" id="notiTyp3" name="notiTyp">
-	        <label for="notiTyp3">비밀</label>
-		</div>
-    </div>
-    <div>
-		<div>댓글 허용여부</div>
-		<select id="cmntYn" th:value="${notice.cmntYn}">
-			<option value="" th:selected="${notice.cmntYn}==''">==선택==</option>
-			<option value="Y" th:selected="${notice.cmntYn}=='Y'">허용</option>
-			<option value="N" th:selected="${notice.cmntYn}=='N'">허용안함</option>
-		</select>
-    </div>
-    <br>
-    <div>
-        <div>내용</div>
-        <textarea id="content" class="insert_box textarea" th:text="${notice.cont}" th:value="${notice.cont}"></textarea>
-    </div>
-    
-    <br>
-    <input type="button" onclick="updateNotice()" class="blue_button hover_button" th:value="수정">
-    <input type="button" th:onclick="|location.href='@{/listNotices(page=${page})}'|" class="blue_button hover_button" th:value="목록" >
-    <input type="button" onclick="deleteNotice()" class="blue_button hover_button" th:value="삭제" >
-  </form>
-
-</div>
-
-</th:block>
-</body>
 <script type="text/javascript" th:inline="javascript">
 
-$(function(){ //onLoad되면
-  	
-  	// checkbox 체크 값 기본 설정
-	let notiTypVal = $("#notiTypVal").val();
-	let notiTypArr = notiTypVal.split(",");
-  
-	notiTypArr.forEach(function(type){
-		if(type == 'FREE'){
-			$("#notiTyp1").prop("checked", true);
-		}
-		if(type == 'ANON'){
-			$("#notiTyp2").prop("checked", true);
-		}
-		if(type == 'SCRT'){
-			$("#notiTyp3").prop("checked", true);
-		}
-	});
-  
-});
-
-// 글 수정
-function updateNotice(){
-	
-	if(confirm('글을 수정하시겠습니까?')){
-		
-		// 게시물 유형 배열
-		var chkTyp = [];
-		$('input[name=notiTyp]:checked').each(function(){
-			chkTyp.push($(this).val());
-		});
-		// 게시물 유형 ,로 나눈 문자열로 변환
-		var notiTyp = chkTyp.join(',');
-		
-		// 전송 데이터
-		var formData = {
-			notiNo: $("#notiNo").val(),
-			title : $.trim($("#title").val()),
-			writer : $.trim($("#writer").val()),
-			expYn : $('input[name=expYn]:checked').val(),
-			notiTyp : notiTyp, 
-			cmntYn : $("#cmntYn").val(),
-			cont : $.trim($("#content").val()),
-		}
-		
-		// Validation Check	
-		if(formData.title == ""){
-			alert('제목을 입력해주세요.')
-		}else if(formData.writer == ""){
-			alert('작성자를 입력해주세요.')
-		}else if(formData.expYn == null){
-			alert('공개여부를 선택해주세요.')
-		}else if(chkTyp.length == 0){
-			alert('게시물 유형을 선택해주세요.')
-		}else if(formData.cmntYn == ""){
-			alert('댓글 허용여부를 선택해주세요.')
-		}else if(formData.cont == ""){
-			alert('내용을 입력해주세요.')
-		}
-		
-		console.log(formData);
-		
-		$.ajax({
-			type: "POST",
-			url: "/updateNotice",
-			contentType: "application/json; charset=UTF-8",
-			data: JSON.stringify(formData),
-			success: function(data){
-				alert('글이 수정되었습니다.');
-				location.href="/listNotices";
-			}
-		});
-	
-	}else{
-		alert('글 수정을 취소하셨습니다.')
-	}
-
-}
-
+// 게시글 삭제
 function deleteNotice(){
+	
+	let page = [[${page}]];
 	
 	// 전송 데이터
 	var formData = {
@@ -221,7 +84,7 @@ function deleteNotice(){
 			data: JSON.stringify(formData),
 			success: function(data){
 				alert('글이 삭제되었습니다.');
-				location.href="/list";
+				location.href="/listPage?page=" + page;
 			}
 		});
 	
@@ -230,6 +93,34 @@ function deleteNotice(){
 	}
 	
 }
-
+  
 </script>
+</head>
+<body>
+
+<div class="container">
+
+  <form id="detailForm">
+  	<input type="hidden" id="notiNo" th:value="${notice.notiNo}">
+    <div th:text="${notice.title}" name="title" id="title_div"></div> 
+    <div style="padding-top: 10px; padding-bottom: 10px;">
+      <div th:text="${notice.writer}" name="writer" style="float: left;"></div>
+      <div style="padding-right: 20px; padding-left: 20px; float: left;">|</div>
+      <div th:text="${notice.regDtime}" name="regdate" style="float: left;"></div>
+    </div>
+    <br><br><br><br>
+    <textarea th:text="${notice.cont}" id="content" name="content" style="width: 100%; height: 300px;" readonly>
+    </textarea>
+    <br><br>
+
+    <input th:if="${session.loginUsr != null}" class="blue_button hover_button" type="button" value="수정"
+    	th:onclick="|location.href='@{/update(notiNo=${notice.notiNo}, page=${page})}'|">
+    <input th:if="${session.loginUsr != null}" class="blue_button hover_button" type="button" value="삭제"
+    	onclick="deleteNotice()">
+    <input class="blue_button hover_button" type="button" th:onclick="|location.href='@{/listPage(page=${page})}'|" value="목록">
+  </form>
+
+</div>
+
+</body>
 </html>

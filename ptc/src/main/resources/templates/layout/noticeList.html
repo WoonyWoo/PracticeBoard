@@ -43,7 +43,7 @@ button {
     border: none;
     cursor: pointer;
 }
-#registbtn{
+.blue_button{
     width: 100px;
     border-radius: 15px;
     float: right;
@@ -120,8 +120,46 @@ function moveDetail(notiNo){
 	});
 }
 
-function test(){
-	location.href="/detail?notiNo=2"
+// 로그인(세션)
+function login(){
+	
+	$.ajax({
+		type: "POST",
+		url: "/login",
+		success: function(data){
+			window.location.replace(data);
+		}
+	});
+	
+}
+
+// 로그아웃(세션)
+function logout(){
+	
+	$.ajax({
+		type: "POST",
+		url: "/logout",
+		success: function(data){
+			window.location.replace(data);
+		}
+	});
+	
+}
+
+// 글 등록 로그인 체크
+function loginChk(){
+	
+	let session = [[${session.loginUsr}]]; 
+	let page = [[${page.currentPage}]];
+	
+	//console.log(session);
+	
+	if(session == null){
+		alert("로그인을 먼저 해주세요");
+	}else{
+		location.href="/regist?page=" + page;
+	}
+	
 }
 
 </script>
@@ -143,34 +181,40 @@ function test(){
 	            <th>댓글 허용여부</th>
 	        </tr>
         </thead>
-        <tbody th:each="notice,idx : ${list}">
+        <tbody th:each="notice : ${list}">
         	<tr>
         		<td th:text="${notice.rn}"></td>
         		<td th:text="${notice.notiNo}"></td>
-        		<td><a th:href="@{/detail(notiNo=${notice.notiNo})}"th:text="${notice.title}"/></td>
+        		<td><a th:href="@{/detail(notiNo=${notice.notiNo}, page=${page.currentPage})}" th:text="${notice.title}"/></td>
+        		<!--<td><a th:href="@{/detail(notiNo=${notice.notiNo})}"th:text="${notice.notiNo}"/></td>-->
+        		<!--<td><a th:href="@{/update(notiNo=${notice.notiNo}, page=${page.currentPage})}"th:text="${notice.title}"/></td>-->
         		<td th:text="${notice.writer}"></td>
         		<td th:text="${notice.regDtime}"></td>
         		<td th:text="${notice.modDtime}"></td>
-        		<td th:text="${notice.cmntYn}"></td>
+        		<td th:text="${notice.cmntYn}" ></td>
     		</tr>
         </tbody>
         
     </table>
     
     <div style="width: 100%;" class="pagination">
-        <button id="registbtn" onclick="location.href='/regist'">글 등록</button>
+        <button th:if="${session.loginUsr == null}" id="login" class="blue_button" onclick="login()">로그인</button>
+        <button th:if="${session.loginUsr != null}" id="logout" class="blue_button" onclick="logout()">로그아웃</button>
+        
+        <button id="registbtn" onclick="loginChk()" class="blue_button">글 등록</button>
+        <!--<button id="registbtn" onclick="loginChk()" th:onclick="|location.href='@{/regist(page=${page.currentPage})}'|" class="blue_button">글 등록</button>-->
     </div>
     
     <div class="center">
 	    <div class="pagination">
-			<a href="#">&laquo;</a>
-			<a href="#">❮</a>
-			<th:block th:each="num, idx : ${#numbers.sequence(1,5)}">
-				<a href="#">1</a>
+			<a th:href="@{/listPage(page=${page.firstPageNo})}">&laquo;</a>
+			<a th:href="@{/listPage(page=${page.prevPageNo})}">❮</a>
+			<th:block th:each="num : ${#numbers.sequence(1, page.finalPageNo)}">
+				<a th:href="@{/listPage(page=${num})}" th:text="${num}" 
+					th:class="${num==page.currentPage} ? active"></a>
 			</th:block>
-			<a href="#">❯</a>
-	  		<a href="#">&raquo;</a>
-			<!--<a href="#" class="active">2</a>-->
+			<a th:href="@{/listPage(page=${page.nextPageNo})}">❯</a>
+	  		<a th:href="@{/listPage(page=${page.finalPageNo})}">&raquo;</a>
 		</div>
 	</div>
     

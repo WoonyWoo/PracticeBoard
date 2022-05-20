@@ -6,6 +6,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,11 +27,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.ptc.rain.notice.dto.NoticeCd;
 import com.ptc.rain.notice.dto.NoticeDto;
 import com.ptc.rain.notice.dto.PageList;
 import com.ptc.rain.notice.dto.PagingDto;
-import com.ptc.rain.notice.dto.ResultDto;
+import com.ptc.rain.notice.dto.SessionConst;
+import com.ptc.rain.notice.dto.UserDto;
 import com.ptc.rain.notice.service.NoticeService;
 
 @RestController
@@ -36,6 +41,35 @@ public class NoticeController {
 	
 	@Autowired
 	private NoticeService noticeService;
+	
+	// 로그인
+	@PostMapping("/login")
+	public String login(HttpServletRequest req, HttpServletResponse res) {
+		
+		UserDto usrDto = new UserDto();
+		usrDto.setUsrId("rain");
+		usrDto.setPasswd("123");
+		
+		// 세션 매니저를 통해 세션 생성 및 회원정보 보관
+		// 세션이 있으면 있는 세션 반환, 없으면 신규 세션 생성
+		HttpSession session = req.getSession(true);
+		session.setAttribute(SessionConst.LOGIN_USR, usrDto);
+		
+		return "/listPage";
+	}
+	
+	// 로그아웃
+	@PostMapping("/logout")
+	public String logout(HttpServletRequest req, HttpServletResponse res) {
+		
+		// 세션이 있으면 있는 세션 반환, 없으면 null 반환
+		HttpSession session = req.getSession(false);
+		if(session != null) {
+			session.invalidate();
+		}
+		
+		return "/listPage";
+	}
 	
 	// 게시글 등록 화면 이동
 	@RequestMapping(value = "/regist", method = RequestMethod.GET)
@@ -65,23 +99,30 @@ public class NoticeController {
 	}
 	
 	// 게시글 상세 화면 이동
-	/*@RequestMapping(value = "/detail", method = RequestMethod.GET)
-	public ModelAndView moveDetail(@RequestParam int notiNo, ModelAndView mv) throws Exception{
+	@RequestMapping(value = "/detail", method = RequestMethod.GET)
+	public ModelAndView moveDetail(@RequestParam int notiNo, 
+			@RequestParam(required = false) Optional<Integer> page, HttpServletRequest req) throws Exception{
 		
-		mv = new ModelAndView("layout/noticeDetail");
+		ModelAndView mv = new ModelAndView("layout/noticeDetail");
 		
 		NoticeDto result = noticeService.selectNoticeOne(notiNo);
 		
+		int currentPage = page.orElse(1);
+		
+		//HttpSession session = req.getSession(true);
+		//session.setAttribute("notiNo", notiNo);
+		
 		mv.addObject("notice", result);
+		mv.addObject("page", currentPage);
 		
 		return mv;
-	}*/
+	}
 	
-	// 게시글 상세 화면 이동
-	@RequestMapping(value = "/detail", method = RequestMethod.GET)
-	public ModelAndView test(@RequestParam int notiNo, @RequestParam("page") Optional<Integer> page) throws Exception{
+	// 게시글 수정 화면 이동
+	@RequestMapping(value = "/update", method = RequestMethod.GET)
+	public ModelAndView moveUpdate(@RequestParam int notiNo, @RequestParam(required = false) Optional<Integer> page) throws Exception{
 		
-		ModelAndView mv = new ModelAndView("layout/noticeDetail");
+		ModelAndView mv = new ModelAndView("layout/noticeUpdate");
 		
 		NoticeDto result = noticeService.selectNoticeOne(notiNo);
 		
@@ -95,7 +136,7 @@ public class NoticeController {
 	
 	// 게시글 등록
 	@RequestMapping(value = "/registNotice", method = RequestMethod.POST)
-	public void noticeRegist(@RequestBody NoticeDto notice) throws Exception{
+	public void noticeRegist(@RequestBody NoticeDto notice, Model model) throws Exception{
 		
 		NoticeDto nd = new NoticeDto();
 		nd = notice;
@@ -128,22 +169,22 @@ public class NoticeController {
 	
 	// 게시글 목록 조회(페이징)
 	@RequestMapping(value = "/listPage", method = RequestMethod.GET)
-	public ModelAndView selectNoticeList() throws Exception{
+	public ModelAndView selectNoticeList(@RequestParam(required = false) Optional<Integer> page) throws Exception{
 		
 		ModelAndView mv = new ModelAndView("layout/noticeList");
 		
 		PagingDto pg = new PagingDto();
 		
-		pg.setPerPage(5); // 페이지당 게시물 수 5개 
-		pg.setCurrentPage(1);
-		
+		pg.setPerPage(5); // 페이지당 게시물 수 5개
+		pg.setCurrentPage(page.orElse(1));
+			
 		NoticeDto noticeDto = new NoticeDto();
 		noticeDto.setPaging(pg);
-
+		
 		PageList<NoticeDto> res = noticeService.selectNoticePageList(noticeDto);
 		
 		mv.addObject("list", res.getItemList());
-		mv.addObject("totalCount", pg.getFinalPageNo());
+		mv.addObject("page", res.getPaging());
 		
 		return mv;
 	}

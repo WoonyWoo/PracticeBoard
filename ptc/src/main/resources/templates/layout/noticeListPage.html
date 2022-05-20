@@ -113,7 +113,7 @@ function moveDetail(notiNo){
 	console.log(notiNo);
 	$.ajax({
 		type: "GET",
-		url: "/detail",
+		url: "/update",
 		data: notiId,
 		success: function(data){
 			console.log(data);
@@ -180,7 +180,7 @@ function searchList(){
         <tbody th:each="notice,idx : ${noticePage}">
         	<tr>
         		<td th:text="${notice.rn}"></td>
-        		<td><a th:href="@{/detail(notiNo=${notice.notiNo}, page=${noticePage.number + 1})}"th:text="${notice.title}"/></td>
+        		<td><a th:href="@{/update(notiNo=${notice.notiNo}, page=${noticePage.number + 1})}"th:text="${notice.title}"/></td>
         		<td th:text="${notice.writer}"></td>
         		<td th:text="${notice.regDtime}"></td>
         		<td th:text="${notice.modDtime}"></td>

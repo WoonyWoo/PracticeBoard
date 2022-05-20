@@ -97,7 +97,7 @@
     
     <!-- 게시물 총 개수 -->
     <select id="selectNoticeListTotalCount" resultType="int">
-    	SELECT COUNT(*)
+    	SELECT COUNT(*) AS cnt
     	FROM (
     		SELECT 
         	NOTI_NO
@@ -118,7 +118,7 @@
     	) T1
     </select>
     
-    <!-- RW 추가한 게시물 목록 조회 -->
+    <!-- RN 추가한 게시물 목록 조회 -->
     <select id="selectNoticePageList" parameterType="java.util.Map" resultType="NoticeDto">
     	SELECT
 			T2.*
@@ -149,6 +149,27 @@
 			WHERE @rownum <![CDATA[ < ]]> #{paging.endPageNo}
 		) T2
 		WHERE T2.RN <![CDATA[ >= ]]> #{paging.startPageNo};
+    </select>
+    
+    <!-- 현재 게시물의 순번 찾기 -->
+    <select id="selectRn" parameterType="int" resultType="NoticeDto">
+    	SELECT
+			T2.*
+		FROM (
+			SELECT
+				@rownum := @rownum+1 as RN
+				, T1.*
+			FROM (
+				SELECT 
+		        	NOTI_NO
+		       	FROM notice
+		       	WHERE 1=1
+		    		AND DEL_YN = "N"
+		    	ORDER BY NOTI_NO DESC
+		    	) T1,
+		    	(select @rownum :=0) AS r
+		) T2
+		WHERE NOTI_NO = {notiNo};
     </select>
     
 </mapper>
