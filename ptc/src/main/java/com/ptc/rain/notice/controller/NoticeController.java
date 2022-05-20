@@ -101,7 +101,7 @@ public class NoticeController {
 	// 게시글 상세 화면 이동
 	@RequestMapping(value = "/detail", method = RequestMethod.GET)
 	public ModelAndView moveDetail(@RequestParam int notiNo, 
-			@RequestParam(required = false) Optional<Integer> page, HttpServletRequest req) throws Exception{
+			@RequestParam Optional<Integer> page, HttpServletRequest req) throws Exception{
 		
 		ModelAndView mv = new ModelAndView("layout/noticeDetail");
 		
@@ -120,7 +120,7 @@ public class NoticeController {
 	
 	// 게시글 수정 화면 이동
 	@RequestMapping(value = "/update", method = RequestMethod.GET)
-	public ModelAndView moveUpdate(@RequestParam int notiNo, @RequestParam(required = false) Optional<Integer> page) throws Exception{
+	public ModelAndView moveUpdate(@RequestParam int notiNo, @RequestParam Optional<Integer> page) throws Exception{
 		
 		ModelAndView mv = new ModelAndView("layout/noticeUpdate");
 		
@@ -136,12 +136,16 @@ public class NoticeController {
 	
 	// 게시글 등록
 	@RequestMapping(value = "/registNotice", method = RequestMethod.POST)
-	public void noticeRegist(@RequestBody NoticeDto notice, Model model) throws Exception{
+	public int noticeRegist(@RequestBody NoticeDto notice, Model model) throws Exception{
 		
 		NoticeDto nd = new NoticeDto();
 		nd = notice;
 		
 		noticeService.insertNotice(nd);
+		
+		int notiNo = nd.getNotiNo();
+		
+		return notiNo;
 		
 	}
 	
@@ -169,7 +173,7 @@ public class NoticeController {
 	
 	// 게시글 목록 조회(페이징)
 	@RequestMapping(value = "/listPage", method = RequestMethod.GET)
-	public ModelAndView selectNoticeList(@RequestParam(required = false) Optional<Integer> page) throws Exception{
+	public ModelAndView selectNoticeList(@RequestParam Optional<Integer> page) throws Exception{
 		
 		ModelAndView mv = new ModelAndView("layout/noticeList");
 		

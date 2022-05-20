@@ -70,6 +70,9 @@
 			#{cmntYn},
 			"N"
 		)
+		<selectKey keyProperty="notiNo" resultType="int" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
     </insert>
     
     <!-- 게시물 수정 -->

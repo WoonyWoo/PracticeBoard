@@ -53,14 +53,14 @@ body {
 </style>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
+<script src="/js/ckeditor/ckeditor.js"></script>
 
 <script>
 
-/*$(function(){ //onLoad되면
+$(function(){ //onLoad되면
   //편집기 입히기
   CKEDITOR.replace( 'content' );
-});*/
+});
 
 </script>
 </head>
@@ -110,13 +110,13 @@ body {
     <br>
     <div>
         <div>내용</div>
-        <textarea id="content" class="insert_box textarea"></textarea>
+        <textarea name="content" id="content" class="insert_box textarea"></textarea>
     </div>
     
     <br>
     <input type="button" onclick="registNotice()" class="blue_button hover_button" th:value="등록">
     <input type="button" th:onclick="|location.href='@{/listPage(page=${page})}'|" class="blue_button hover_button" th:value="목록" >
-    <!--<input type="button" onclick="moveList()" class="blue_button hover_button" th:value="목록" >-->
+    <input type="button" onclick="test()" class="blue_button hover_button" th:value="CKEditorTest" >
   </form>
 
 </div>
@@ -126,23 +126,11 @@ body {
 <script type="text/javascript">
 
 // 글 목록으로 이동
-/*function moveList(){
+function test(){
+	console.log(CKEDITOR.instances);
 	
-	// 전송 데이터
-	var formData = {
-		notiNo : "1",
-	}
 	
-	$.ajax({
-		type: "GET",
-		url: "/detail",
-		data: notiId,
-		success: function(data){
-			console.log(data);
-		}
-	});
-	
-}*/
+}
 
 
 // 글 등록
@@ -157,6 +145,7 @@ function registNotice(){
 		});
 		// 게시물 유형 ,로 나눈 문자열로 변환
 		var notiTyp = chkTyp.join(',');
+		
 		
 		// 전송 데이터
 		var formData = {
@@ -199,7 +188,7 @@ function registNotice(){
 			success: function(data){
 				alert('글이 등록되었습니다.');
 				console.log(data);
-				location.href="/listPage?page=[[${page}]]";
+				location.href="/detail?notiNo=" + data;
 			}
 		});
 	

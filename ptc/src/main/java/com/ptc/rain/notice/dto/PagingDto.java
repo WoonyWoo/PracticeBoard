@@ -133,8 +133,13 @@ public class PagingDto {
    */
   private void makePaging() {
 
-    if (this.totalCount == 0)
+    if (this.totalCount == 0) {
+      this.setFirstPageNo(1);
+      this.setFinalPageNo(1);
+      this.setNextPageNo(1);
+      this.setPrevPageNo(1);
       return; // 게시 글 전체 수가 없는 경우
+    }
     if (this.currentPage == 0)
       this.setCurrentPage(1); // 기본 값 설정
     if (this.perPage == 0)

@@ -78,12 +78,16 @@ public class NoticeServiceImpl implements NoticeService{
 		PageList<NoticeDto> selectNoticePageList = new PageList<NoticeDto>();
 		selectNoticePageList.setPaging(noticeDto.getPaging());
 		
-		selectNoticePageList.setItemList(noticeMapper.selectNoticePageList(noticeDto));
 		selectNoticePageList.setItemTotalCount(noticeMapper.selectNoticeListTotalCount());
+		//selectNoticePageList.setItemTotalCount(0);
+		if(selectNoticePageList.getItemTotalCount() > 0) {
+			selectNoticePageList.setItemList(noticeMapper.selectNoticePageList(noticeDto));
+		}
 		
 		return selectNoticePageList;
 	}
 
+	/* 게시글 목록 조회(Pageable) - 전체 조회로 인한 속도 이슈 */
 	@Override
 	public Page<NoticeDto> findPaginated(Pageable pageable, NoticeDto nd) throws Exception {
 		

@@ -181,17 +181,18 @@ function loginChk(){
 	            <th>댓글 허용여부</th>
 	        </tr>
         </thead>
-        <tbody th:each="notice : ${list}">
-        	<tr>
+        <tbody >
+        	<tr th:if="${list != null}" th:each="notice : ${list}">
         		<td th:text="${notice.rn}"></td>
         		<td th:text="${notice.notiNo}"></td>
         		<td><a th:href="@{/detail(notiNo=${notice.notiNo}, page=${page.currentPage})}" th:text="${notice.title}"/></td>
-        		<!--<td><a th:href="@{/detail(notiNo=${notice.notiNo})}"th:text="${notice.notiNo}"/></td>-->
-        		<!--<td><a th:href="@{/update(notiNo=${notice.notiNo}, page=${page.currentPage})}"th:text="${notice.title}"/></td>-->
         		<td th:text="${notice.writer}"></td>
         		<td th:text="${notice.regDtime}"></td>
         		<td th:text="${notice.modDtime}"></td>
         		<td th:text="${notice.cmntYn}" ></td>
+    		</tr>
+    		<tr th:unless="${list != null}">
+    			<td colspan="7">조회된 결과가 없습니다</td>
     		</tr>
         </tbody>
         
