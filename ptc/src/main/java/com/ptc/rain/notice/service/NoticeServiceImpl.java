@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.ptc.rain.notice.dto.NoticeDto;
 import com.ptc.rain.notice.dto.PageList;
 import com.ptc.rain.notice.dto.ResultDto;
+import com.ptc.rain.notice.dto.SearchDto;
 import com.ptc.rain.notice.mapper.NoticeMapper;
 
 @Service
@@ -73,22 +74,22 @@ public class NoticeServiceImpl implements NoticeService{
 
 	/* 게시글 목록 조회(페이징) */
 	@Override
-	public PageList<NoticeDto> selectNoticePageList(NoticeDto noticeDto) throws Exception {
+	public PageList<NoticeDto> selectNoticePageList(SearchDto sd) throws Exception {
 		
 		PageList<NoticeDto> selectNoticePageList = new PageList<NoticeDto>();
-		selectNoticePageList.setPaging(noticeDto.getPaging());
+		selectNoticePageList.setPaging(sd.getPaging());
 		
-		selectNoticePageList.setItemTotalCount(noticeMapper.selectNoticeListTotalCount());
+		selectNoticePageList.setItemTotalCount(noticeMapper.selectNoticeListTotalCount(sd));
 		//selectNoticePageList.setItemTotalCount(0);
 		if(selectNoticePageList.getItemTotalCount() > 0) {
-			selectNoticePageList.setItemList(noticeMapper.selectNoticePageList(noticeDto));
+			selectNoticePageList.setItemList(noticeMapper.selectNoticePageList(sd));
 		}
 		
 		return selectNoticePageList;
 	}
 
 	/* 게시글 목록 조회(Pageable) - 전체 조회로 인한 속도 이슈 */
-	@Override
+	/*@Override
 	public Page<NoticeDto> findPaginated(Pageable pageable, NoticeDto nd) throws Exception {
 		
 		// 게시물 전체 리스트
@@ -118,7 +119,7 @@ public class NoticeServiceImpl implements NoticeService{
 			= new PageImpl<NoticeDto>(list, PageRequest.of(currentPage, pageSize), notices.size()); 
 		
 		return noticePage;
-	}
+	}*/
 
 	
 	

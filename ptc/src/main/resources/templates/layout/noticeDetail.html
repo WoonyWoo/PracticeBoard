@@ -19,8 +19,9 @@ body {font-family: Arial, Helvetica, sans-serif; margin: 0px;}
   margin-bottom: 16px;
   resize: vertical;
 }
-textarea{
+.content{
   height:100px;
+  border: solid 1px black;
 }
 .blue_button {
   background-color: #0063DD;
@@ -65,10 +66,23 @@ textarea{
 
 <script type="text/javascript" th:inline="javascript">
 
+$(function(){ //onLoad되면
+  
+  let str = [[${notice.cont}]];
+  /*str = str.replaceAll("&lt;", "<");
+  str = str.replaceAll("&gt;", ">");
+  str = str.replaceAll("&amp;lt;", "<");
+  str = str.replaceAll("&amp;gt;", ">");
+  str = str.replaceAll("&nbsp;", " ");
+  str = str.replaceAll("&amp;", "&");*/
+  console.log(str);
+  //document.getElementById('content').innerHTML = str;
+  $('#content').html(str);
+  
+});
+
 // 게시글 삭제
 function deleteNotice(){
-	
-	let page = [[${page}]];
 	
 	// 전송 데이터
 	var formData = {
@@ -84,7 +98,11 @@ function deleteNotice(){
 			data: JSON.stringify(formData),
 			success: function(data){
 				alert('글이 삭제되었습니다.');
-				location.href="/listPage?page=" + page;
+				let url = "/listPage";
+				url += "?page=" + [[${page}]];;
+				url += "&srchTyp=" + [[${srchData.srchTyp}]];
+				url += "&keyword=" + [[${srchData.keyword}]];
+				location.href=url;
 			}
 		});
 	
@@ -109,15 +127,16 @@ function deleteNotice(){
       <div th:text="${notice.regDtime}" name="regdate" style="float: left;"></div>
     </div>
     <br><br><br><br>
-    <textarea th:text="${notice.cont}" id="content" name="content" style="width: 100%; height: 300px;" readonly>
-    </textarea>
+    <!--<textarea th:text="${notice.cont}" id="content" name="content" style="width: 100%; height: 300px;" readonly></textarea>-->
+    <div id="content" class="content" name="content" style="width: 100%; height: 300px;">dd</div>
     <br><br>
 
     <input th:if="${session.loginUsr != null}" class="blue_button hover_button" type="button" value="수정"
-    	th:onclick="|location.href='@{/update(notiNo=${notice.notiNo}, page=${page})}'|">
+    	th:onclick="|location.href='@{/update(notiNo=${notice.notiNo}, page=${page},srchTyp=${srchData.srchTyp},keyword=${srchData.keyword})}'|">
     <input th:if="${session.loginUsr != null}" class="blue_button hover_button" type="button" value="삭제"
-    	onclick="deleteNotice()">
-    <input class="blue_button hover_button" type="button" th:onclick="|location.href='@{/listPage(page=${page})}'|" value="목록">
+    	th:onclick="deleteNotice()">
+    <input class="blue_button hover_button" type="button" 
+    	th:onclick="|location.href='@{/listPage(page=${page},srchTyp=${srchData.srchTyp},keyword=${srchData.keyword})}'|" value="목록">
   </form>
 
 </div>

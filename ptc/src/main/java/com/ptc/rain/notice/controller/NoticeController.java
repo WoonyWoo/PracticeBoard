@@ -30,6 +30,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.ptc.rain.notice.dto.NoticeDto;
 import com.ptc.rain.notice.dto.PageList;
 import com.ptc.rain.notice.dto.PagingDto;
+import com.ptc.rain.notice.dto.SearchDto;
 import com.ptc.rain.notice.dto.SessionConst;
 import com.ptc.rain.notice.dto.UserDto;
 import com.ptc.rain.notice.service.NoticeService;
@@ -101,28 +102,39 @@ public class NoticeController {
 	// 게시글 상세 화면 이동
 	@RequestMapping(value = "/detail", method = RequestMethod.GET)
 	public ModelAndView moveDetail(@RequestParam int notiNo, 
-			@RequestParam Optional<Integer> page, HttpServletRequest req) throws Exception{
+			@RequestParam Optional<Integer> page
+			,@RequestParam(required = false, defaultValue = "srchTtl") String srchTyp
+			,@RequestParam(required = false, defaultValue = "") String keyword) throws Exception{
 		
 		ModelAndView mv = new ModelAndView("layout/noticeDetail");
+
+		SearchDto sd = new SearchDto(); // 검색 데이터
+		sd.setSrchTyp(srchTyp);
+		sd.setKeyword(keyword);
 		
 		NoticeDto result = noticeService.selectNoticeOne(notiNo);
 		
 		int currentPage = page.orElse(1);
 		
-		//HttpSession session = req.getSession(true);
-		//session.setAttribute("notiNo", notiNo);
-		
 		mv.addObject("notice", result);
 		mv.addObject("page", currentPage);
+		mv.addObject("srchData", sd);
 		
 		return mv;
 	}
 	
 	// 게시글 수정 화면 이동
 	@RequestMapping(value = "/update", method = RequestMethod.GET)
-	public ModelAndView moveUpdate(@RequestParam int notiNo, @RequestParam Optional<Integer> page) throws Exception{
+	public ModelAndView moveUpdate(@RequestParam int notiNo
+			,@RequestParam Optional<Integer> page
+			,@RequestParam(required = false, defaultValue = "srchTtl") String srchTyp
+			,@RequestParam(required = false, defaultValue = "") String keyword) throws Exception{
 		
 		ModelAndView mv = new ModelAndView("layout/noticeUpdate");
+		
+		SearchDto sd = new SearchDto(); // 검색 데이터
+		sd.setSrchTyp(srchTyp);
+		sd.setKeyword(keyword);
 		
 		NoticeDto result = noticeService.selectNoticeOne(notiNo);
 		
@@ -130,6 +142,7 @@ public class NoticeController {
 		
 		mv.addObject("notice", result);
 		mv.addObject("page", currentPage);
+		mv.addObject("srchData", sd);
 		
 		return mv;
 	}
@@ -173,28 +186,38 @@ public class NoticeController {
 	
 	// 게시글 목록 조회(페이징)
 	@RequestMapping(value = "/listPage", method = RequestMethod.GET)
-	public ModelAndView selectNoticeList(@RequestParam Optional<Integer> page) throws Exception{
+	public ModelAndView selectNoticeList(
+			@RequestParam Optional<Integer> page
+			,@RequestParam(required = false, defaultValue = "srchTtl") String srchTyp
+			,@RequestParam(required = false, defaultValue = "") String keyword) throws Exception{
 		
 		ModelAndView mv = new ModelAndView("layout/noticeList");
 		
 		PagingDto pg = new PagingDto();
+		SearchDto sd = new SearchDto();
+		
+		sd.setSrchTyp(srchTyp);
+		sd.setKeyword(keyword);
 		
 		pg.setPerPage(5); // 페이지당 게시물 수 5개
 		pg.setCurrentPage(page.orElse(1));
-			
-		NoticeDto noticeDto = new NoticeDto();
-		noticeDto.setPaging(pg);
 		
-		PageList<NoticeDto> res = noticeService.selectNoticePageList(noticeDto);
+		//NoticeDto noticeDto = new NoticeDto();
+		//noticeDto.setPaging(pg);
 		
-		mv.addObject("list", res.getItemList());
-		mv.addObject("page", res.getPaging());
+		sd.setPaging(pg);
+		
+		PageList<NoticeDto> res = noticeService.selectNoticePageList(sd);
+		
+		mv.addObject("list", res.getItemList()); // 게시물 목록 데이터
+		mv.addObject("page", res.getPaging()); // 페이징 데이터
+		mv.addObject("srchData", sd); // 검색 데이터
 		
 		return mv;
 	}
 	
 	// 게시글 목록 조회(Pageable) - 전체 조회라서 속도 이슈
-	@RequestMapping(value = "/listNotices", method = RequestMethod.GET)
+	/*@RequestMapping(value = "/listNotices", method = RequestMethod.GET)
 	public ModelAndView listNotices(@RequestParam(required = false) NoticeDto nd, 
 			@RequestParam("page") Optional<Integer> page, @RequestParam("size") Optional<Integer> size, ModelAndView mv) throws Exception {
 		
@@ -220,6 +243,6 @@ public class NoticeController {
 		mv.setViewName("layout/noticeListPage"); // 경로 설정
 		
 		return mv;
-	}
+	}*/
 
 }

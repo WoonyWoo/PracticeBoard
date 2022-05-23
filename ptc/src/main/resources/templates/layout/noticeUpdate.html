@@ -55,14 +55,6 @@ body {
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
 
-<script th:inline="javascript" type="text/javascript">
-
-/*$(function(){ //onLoad되면
-  //편집기 입히기
-  CKEDITOR.replace( 'content' );
-});*/
-
-</script>
 </head>
 
 <body>
@@ -119,6 +111,7 @@ body {
     <input type="button" onclick="updateNotice()" class="blue_button hover_button" th:value="수정">
     <input type="button" class="blue_button hover_button" th:value="취소"
     	onclick="cancelUpdate()">
+	<input type="button" onclick="test()" class="blue_button hover_button" th:value="CKEditorTest" >
     <!--<input type="button" class="blue_button hover_button" th:value="취소"
     	th:onclick="|location.href='@{/detail(notiNo=${session.notiNo})}'|">-->
     <!--<input type="button" th:onclick="|location.href='@{/listPage(page=${page})}'|" class="blue_button hover_button" th:value="목록" >
@@ -132,6 +125,13 @@ body {
 <script type="text/javascript" th:inline="javascript">
 
 $(function(){ //onLoad되면
+
+	//편집기 입히기
+	CKEDITOR.replace( 'content' ,{
+		enterMode: CKEDITOR.ENTER_BR, // p 태그 대신 br 태그로 변경
+		fillEmptyBlocks: false, // 중간에 기본으로 br 넣는 것 제거 
+		basicEntities: false, 
+	});
   	
   	// checkbox 체크 값 기본 설정
 	let notiTypVal = $("#notiTypVal").val();
@@ -151,6 +151,19 @@ $(function(){ //onLoad되면
   
 });
 
+function test(){
+	let str = CKEDITOR.instances.content.getData();
+	str = $.trim(str);
+	console.log(str);
+	
+	while(str.startsWith("<br />")){
+		str = str.substring(7,);
+		console.log(str);
+		
+	}
+	
+}
+
 // 글 수정
 function updateNotice(){
 	
@@ -164,6 +177,11 @@ function updateNotice(){
 		// 게시물 유형 ,로 나눈 문자열로 변환
 		var notiTyp = chkTyp.join(',');
 		
+		let cont = $.trim(CKEDITOR.instances.content.getData()); // 내용 앞 뒤 빈칸 제거
+		while(cont.startsWith("<br />")){ // 내용 앞부분 엔터 제거
+			cont = cont.substring(7,);
+		}
+		
 		// 전송 데이터
 		var formData = {
 			notiNo: $("#notiNo").val(),
@@ -172,7 +190,8 @@ function updateNotice(){
 			expYn : $('input[name=expYn]:checked').val(),
 			notiTyp : notiTyp, 
 			cmntYn : $("#cmntYn").val(),
-			cont : $.trim($("#content").val()),
+			//cont : $.trim($("#content").val()),
+			cont : cont,
 		}
 		
 		// Validation Check	
@@ -205,7 +224,13 @@ function updateNotice(){
 			data: JSON.stringify(formData),
 			success: function(data){
 				alert('글이 수정되었습니다.');
-				location.href="/detail?notiNo=[[${notice.notiNo}]]&page=[[${page}]]";
+				//location.href="/detail?notiNo=[[${notice.notiNo}]]&page=[[${page}]]&srchTyp=[[${srchData.srchTyp}]]&keyword=[[${srchData.keyword}]]";
+				let url = "/detail";
+				url += "?notiNo=" + [[${notice.notiNo}]];
+				url += "&page=" + [[${page}]];
+				url += "&srchTyp=" + [[${srchData.srchTyp}]];
+				url += "&keyword=" + [[${srchData.keyword}]];
+				location.href=url;
 			}
 		});
 	
@@ -219,8 +244,8 @@ function cancelUpdate(){
 	
 	if(confirm('수정을 취소하시겠습니까?')){
 		
-		location.href="/detail?notiNo=[[${notice.notiNo}]]&page=[[${page}]]";
-		
+		//location.href="/detail?notiNo=[[${notice.notiNo}]]&page=[[${page}]]&srchTyp=[[${srchData.srchTyp}]]&keyword=[[${srchData.keyword}]]";
+		history.back();
 	}else{
 		
 	}

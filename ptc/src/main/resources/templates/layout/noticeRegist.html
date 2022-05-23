@@ -59,7 +59,11 @@ body {
 
 $(function(){ //onLoad되면
   //편집기 입히기
-  CKEDITOR.replace( 'content' );
+  CKEDITOR.replace( 'content' ,{
+	enterMode: CKEDITOR.ENTER_BR,
+	fillEmptyBlocks: false,
+	basicEntities: false,
+  });
 });
 
 </script>
@@ -112,10 +116,16 @@ $(function(){ //onLoad되면
         <div>내용</div>
         <textarea name="content" id="content" class="insert_box textarea"></textarea>
     </div>
+    <div>
+    	<div class="insert_box">
+	    	<input type="file" id="uploadFile">
+    	</div>
+    </div>
     
     <br>
     <input type="button" onclick="registNotice()" class="blue_button hover_button" th:value="등록">
-    <input type="button" th:onclick="|location.href='@{/listPage(page=${page})}'|" class="blue_button hover_button" th:value="목록" >
+    <!--<input type="button" th:onclick="|location.href='@{/listPage(page=${page})}'|" class="blue_button hover_button" th:value="목록" >-->
+    <input type="button" onclick="javascript:history.back()" class="blue_button hover_button" th:value="목록" >
     <input type="button" onclick="test()" class="blue_button hover_button" th:value="CKEditorTest" >
   </form>
 
@@ -125,10 +135,9 @@ $(function(){ //onLoad되면
 </body>
 <script type="text/javascript">
 
-// 글 목록으로 이동
 function test(){
-	console.log(CKEDITOR.instances);
-	
+	let str = CKEDITOR.instances.content.getData();
+	console.log($.trim(str));
 	
 }
 
@@ -146,6 +155,10 @@ function registNotice(){
 		// 게시물 유형 ,로 나눈 문자열로 변환
 		var notiTyp = chkTyp.join(',');
 		
+		let cont = $.trim(CKEDITOR.instances.content.getData()); // 내용 앞 뒤 빈칸 제거
+		while(cont.startsWith("<br />")){ // 내용 앞부분 엔터 제거
+			cont = cont.substring(7,);
+		}
 		
 		// 전송 데이터
 		var formData = {
@@ -154,7 +167,8 @@ function registNotice(){
 			expYn : $('input[name=expYn]:checked').val(),
 			notiTyp : notiTyp, 
 			cmntYn : $("#cmntYn").val(),
-			cont : $.trim($("#content").val()),
+			//cont : $.trim($("#content").val()),
+			cont : cont,
 		}
 		
 		// Validation Check	

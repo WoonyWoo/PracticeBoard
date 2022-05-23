@@ -162,6 +162,18 @@ function loginChk(){
 	
 }
 
+// 검색
+function search(){
+	
+	let url = "/listPage"
+	url += "?srchTyp=" + $('#srchTyp').val();
+	url += "&keyword=" + $('#keyword').val();
+	
+	location.href = url;
+	console.log(url);
+	
+}
+
 </script>
 
 </head>
@@ -169,6 +181,8 @@ function loginChk(){
 
 <div class="container">
     <div id="t_div">게시글 목록</div>
+    
+    <!-- 게시물 목록 -->
     <table>
         <thead>
 	        <tr>
@@ -185,7 +199,7 @@ function loginChk(){
         	<tr th:if="${list != null}" th:each="notice : ${list}">
         		<td th:text="${notice.rn}"></td>
         		<td th:text="${notice.notiNo}"></td>
-        		<td><a th:href="@{/detail(notiNo=${notice.notiNo}, page=${page.currentPage})}" th:text="${notice.title}"/></td>
+        		<td><a th:href="@{/detail(notiNo=${notice.notiNo},page=${page.currentPage},srchTyp=${srchData.srchTyp},keyword=${srchData.keyword})}" th:text="${notice.title}"/></td>
         		<td th:text="${notice.writer}"></td>
         		<td th:text="${notice.regDtime}"></td>
         		<td th:text="${notice.modDtime}"></td>
@@ -198,6 +212,7 @@ function loginChk(){
         
     </table>
     
+    <!-- Button -->
     <div style="width: 100%;" class="pagination">
         <button th:if="${session.loginUsr == null}" id="login" class="blue_button" onclick="login()">로그인</button>
         <button th:if="${session.loginUsr != null}" id="logout" class="blue_button" onclick="logout()">로그아웃</button>
@@ -206,27 +221,30 @@ function loginChk(){
         <!--<button id="registbtn" onclick="loginChk()" th:onclick="|location.href='@{/regist(page=${page.currentPage})}'|" class="blue_button">글 등록</button>-->
     </div>
     
+    <!-- Paging -->
     <div class="center">
 	    <div class="pagination">
-			<a th:href="@{/listPage(page=${page.firstPageNo})}">&laquo;</a>
-			<a th:href="@{/listPage(page=${page.prevPageNo})}">❮</a>
+			<a th:href="@{/listPage(page=${page.firstPageNo},srchTyp=${srchData.srchTyp},keyword=${srchData.keyword})}">&laquo;</a>
+			<a th:href="@{/listPage(page=${page.prevPageNo},srchTyp=${srchData.srchTyp},keyword=${srchData.keyword})}">❮</a>
 			<th:block th:each="num : ${#numbers.sequence(1, page.finalPageNo)}">
-				<a th:href="@{/listPage(page=${num})}" th:text="${num}" 
+				<a th:href="@{/listPage(page=${num},srchTyp=${srchData.srchTyp},keyword=${srchData.keyword})}" th:text="${num}" 
 					th:class="${num==page.currentPage} ? active"></a>
 			</th:block>
-			<a th:href="@{/listPage(page=${page.nextPageNo})}">❯</a>
-	  		<a th:href="@{/listPage(page=${page.finalPageNo})}">&raquo;</a>
+			<a th:href="@{/listPage(page=${page.nextPageNo},srchTyp=${srchData.srchTyp},keyword=${srchData.keyword})}">❯</a>
+	  		<a th:href="@{/listPage(page=${page.finalPageNo},srchTyp=${srchData.srchTyp},keyword=${srchData.keyword})}">&raquo;</a>
 		</div>
 	</div>
     
+    <!-- SearchFrom -->
     <div id="search_list">
         <form id="search_form">
-            <select name="category" id="category" style="border:5px solid#0063DD">
-                <option value="title">제목</option>
-                <option value="writer">글쓴이</option>
+            <select name="srchTyp" id="srchTyp" style="border:5px solid#0063DD" th:value="${srchData.srchTyp}">
+                <option value="srchTtl" th:selected="${srchData.srchTyp}=='srchTtl'">제목</option>
+                <option value="srchWrt" th:selected="${srchData.srchTyp}=='srchWrt'">작성자</option>
+                <option value="srchCont" th:selected="${srchData.srchTyp}=='srchCont'">내용</option>
             </select>
-            <input type="text" id="keyword" name="keyword" placeholder="검색어를 입력하세요" style="width: 300px; border:5px solid#0063DD">
-            <button type="button" id="searchbtn" style="height: 20px;" onclick="test()"><i class='fa fa-search'></i></button>
+            <input type="text" id="keyword" name="keyword" th:value="${srchData.keyword}" placeholder="검색어를 입력하세요" style="width: 300px; border:5px solid#0063DD">
+            <button type="button" id="searchbtn" style="height: 20px;" onclick="search()"><i class='fa fa-search'></i></button>
         </form>
     </div>
 </div>

@@ -35,4 +35,14 @@ CKEDITOR.editorConfig = function( config ) {
 
 	// Simplify the dialog windows.
 	config.removeDialogTabs = 'image:advanced;link:advanced';
+	
+	
+	// 엔터를 br태그로 바꿈
+	config.enterMode = CKEDITOR.ENTER_BR;
+	config.fillEmptyBlocks = false;
+	
+	// 소스 보기시 자동공백 추가 끄기
+	config.basicEntities = false; 
+	config.fillEmptyBlocks = false;
+
 };

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.ptc.rain.notice.dto.NoticeDto;
 import com.ptc.rain.notice.dto.PageList;
+import com.ptc.rain.notice.dto.SearchDto;
 
 public interface NoticeService {
 	
@@ -26,8 +27,8 @@ public interface NoticeService {
 	public void deleteNotice(int notiNo) throws Exception;
 	
 	/* 게시글 목록 조회(페이징) */
-	public PageList<NoticeDto> selectNoticePageList(NoticeDto noticeDto) throws Exception;
+	public PageList<NoticeDto> selectNoticePageList(SearchDto sd) throws Exception;
 	
 	/* 게시글 목록 조회(페이징, Pageable) */
-	public Page<NoticeDto> findPaginated(Pageable pageable, NoticeDto nd) throws Exception;
+	//public Page<NoticeDto> findPaginated(Pageable pageable, NoticeDto nd) throws Exception;
 }

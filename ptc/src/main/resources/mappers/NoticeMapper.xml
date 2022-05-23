@@ -99,7 +99,7 @@
     </update>
     
     <!-- 게시물 총 개수 -->
-    <select id="selectNoticeListTotalCount" resultType="int">
+    <select id="selectNoticeListTotalCount" parameterType="java.util.Map" resultType="int">
     	SELECT COUNT(*) AS cnt
     	FROM (
     		SELECT 
@@ -118,6 +118,17 @@
        	FROM notice
        	WHERE 1=1
     		AND DEL_YN = "N"
+    		<if test="keyword != null and keyword != '' ">
+	    		<if test="srchTyp=='srchTtl'" >
+	    			AND TITLE like CONCAT('%', #{keyword}, '%')
+	    		</if> 
+	    		<if test="srchTyp=='srchWrt'" >
+	    			AND WRITER like CONCAT('%', #{keyword}, '%')
+	    		</if>
+	    		<if test="srchTyp=='srchCont'" >
+	    			AND CONT like CONCAT('%', #{keyword}, '%')
+	    		</if>
+    		</if>
     	) T1
     </select>
     
@@ -146,33 +157,23 @@
 		       	FROM notice
 		       	WHERE 1=1
 		    		AND DEL_YN = "N"
+	    		<if test="keyword != null and keyword != '' ">
+		    		<if test="srchTyp=='srchTtl'" >
+		    			AND TITLE like CONCAT('%', #{keyword}, '%')
+		    		</if> 
+		    		<if test="srchTyp=='srchWrt'" >
+		    			AND WRITER like CONCAT('%', #{keyword}, '%')
+		    		</if>
+		    		<if test="srchTyp=='srchCont'" >
+		    			AND CONT like CONCAT('%', #{keyword}, '%')
+		    		</if>
+	    		</if>
 		    	ORDER BY NOTI_NO DESC
 		    	) T1,
 		    	(select @rownum :=0) AS r
 			WHERE @rownum <![CDATA[ < ]]> #{paging.endPageNo}
 		) T2
 		WHERE T2.RN <![CDATA[ >= ]]> #{paging.startPageNo};
-    </select>
-    
-    <!-- 현재 게시물의 순번 찾기 -->
-    <select id="selectRn" parameterType="int" resultType="NoticeDto">
-    	SELECT
-			T2.*
-		FROM (
-			SELECT
-				@rownum := @rownum+1 as RN
-				, T1.*
-			FROM (
-				SELECT 
-		        	NOTI_NO
-		       	FROM notice
-		       	WHERE 1=1
-		    		AND DEL_YN = "N"
-		    	ORDER BY NOTI_NO DESC
-		    	) T1,
-		    	(select @rownum :=0) AS r
-		) T2
-		WHERE NOTI_NO = {notiNo};
     </select>
     
 </mapper>

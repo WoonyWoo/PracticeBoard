@@ -3,15 +3,14 @@ package com.ptc.rain.notice.dto;
 import lombok.Data;
 
 @Data
-public class SearchDto extends NoticeDto{
+public class SearchDto{
 	
-	/* 검색 조건(제목) */
-	private String ttl;
+	/* 검색 조건 */
+	private String srchTyp;
 	
-	/* 검색 조건(작성자) */
-	private String wrt;
+	/* 검색 키워드 */
+	private String keyword;
 	
-	/* 검색 조건(내용) */
-	private String content;
-	
+	/* 검색 키워드 */
+	private PagingDto paging;
 }
