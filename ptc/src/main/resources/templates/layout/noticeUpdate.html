@@ -50,6 +50,62 @@ body {
   border-bottom: 1px solid #093687;
   font-size: 30px;
 }
+/*
+ * start of file css
+ */
+.filebox input[type="file"] {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	border: 0;
+}
+.filebox.bs3-primary .col-sm-10>label {
+	color: #fff;
+	background-color: #337ab7;
+	border-color: #2e6da4;
+}
+.filebox .col-sm-10>label {
+	display: inline-block;
+	padding: .5em .75em;
+	color: #999;
+	font-size: inherit;
+	font-weight: 600;
+	line-height: normal;
+	vertical-align: middle;
+	background-color: #fdfdfd;
+	cursor: pointer;
+	border: 1px solid #ebebeb;
+	border-bottom-color: #e2e2e2;
+	border-radius: .25em;
+}
+.filebox .upload-name {
+	display: inline-block;
+	width: 350px;
+	padding: .5em .75em;
+	/* label의 패딩값과 일치 */
+	font-size: inherit;
+	font-family: inherit;
+	line-height: normal;
+	vertical-align: middle;
+	background-color: #f5f5f5;
+	border: 1px solid #ebebeb;
+	border-bottom-color: #e2e2e2;
+	border-radius: .25em;
+	-webkit-appearance: none;
+	/* 네이티브 외형 감추기 */
+	-moz-appearance: none;
+	appearance: none;
+}
+.control-label {
+	display: inline-block;
+}
+/*
+ * end of file css
+ */
 </style>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -106,12 +162,36 @@ body {
         <div>내용</div>
         <textarea id="content" class="insert_box textarea" th:text="${notice.cont}" th:value="${notice.cont}"></textarea>
     </div>
+    <br>
+    
+    <!--/* 저장된 파일이 없는 파일 영역 */-->
+	<div th:if="${#lists.isEmpty( fileList )}" data-name="fileDiv" class="form-group filebox bs3-primary">
+		<label for="file_0" class="col-sm-2 control-label">파일</label>
+		<div class="col-sm-10">
+			<input type="hidden" id="fileChangeYn" value="N"/>
+			<input type="text" id="filename" class="upload-name" readonly />
+			<label for="file" class="control-label">찾아보기</label>
+			<input type="file" name="files" id="file" class="upload-hidden" onchange="changeFilename(this)"/>
+		</div>
+	</div>
+	
+	<!--/* 저장된 파일이 있는 파일 영역 */-->
+	<div th:unless="${#lists.isEmpty( fileList )}" th:each="row, status : ${fileList}" data-name="fileDiv" class="form-group filebox bs3-primary">
+		<label class="col-sm-2 control-label">파일</label>
+		<div class="col-sm-10">
+			<input type="hidden" id="fileId" th:value="${row.fileId}" />
+			<input type="hidden" id="fileChangeYn" value="N"/>
+			<input type="text" id="filename" class="upload-name" th:value="${row.originalName}" readonly />
+			<label for="file" class="control-label">찾아보기</label>
+			<input type="file" name="files" id="file" class="upload-hidden" onchange="changeFilename(this)"/>
+		</div>
+	</div>
     
     <br>
     <input type="button" onclick="updateNotice()" class="blue_button hover_button" th:value="수정">
     <input type="button" class="blue_button hover_button" th:value="취소"
     	onclick="cancelUpdate()">
-	<input type="button" onclick="test()" class="blue_button hover_button" th:value="CKEditorTest" >
+	<input type="button" onclick="test()" class="blue_button hover_button" th:value="test" >
     <!--<input type="button" class="blue_button hover_button" th:value="취소"
     	th:onclick="|location.href='@{/detail(notiNo=${session.notiNo})}'|">-->
     <!--<input type="button" th:onclick="|location.href='@{/listPage(page=${page})}'|" class="blue_button hover_button" th:value="목록" >
@@ -152,15 +232,24 @@ $(function(){ //onLoad되면
 });
 
 function test(){
-	let str = CKEDITOR.instances.content.getData();
-	str = $.trim(str);
-	console.log(str);
-	
-	while(str.startsWith("<br />")){
-		str = str.substring(7,);
-		console.log(str);
+	file = $(file); // input(type=file) 데이터
+	const filename = file[0].files[0].name; // 파일명
+	console.log(filename);
 		
-	}
+	
+}
+
+// 보여지는 파일명 바꾸기
+function changeFilename(file){
+	
+	file = $(file); // input(type=file) 데이터
+	const filename = file[0].files[0].name; // 파일명
+	console.log(filename);
+	var target = file.prevAll('input.upload-name'); // prevAll() : 선택한 요소의 이전 모든 요소를 선택 => input 타입에 upload-name 클래스명을 가지고 있는 것
+	target.val(filename); // 보여지는 파일명 변경
+	
+	//file.prevAll("#fileId").remove(); // fileId 삭제
+	$("#fileChangeYn").val('Y'); // 파일 변경 여부 'Y'로 변경
 	
 }
 
@@ -183,7 +272,7 @@ function updateNotice(){
 		}
 		
 		// 전송 데이터
-		var formData = {
+		var noticeData = {
 			notiNo: $("#notiNo").val(),
 			title : $.trim($("#title").val()),
 			writer : $.trim($("#writer").val()),
@@ -192,32 +281,48 @@ function updateNotice(){
 			cmntYn : $("#cmntYn").val(),
 			//cont : $.trim($("#content").val()),
 			cont : cont,
+			fileId : $('#fileId').val(),
+			fileChangeYn : $('#fileChangeYn').val(),
 		}
+		console.log(noticeData);
 		
 		// Validation Check	
-		if(formData.title == ""){
+		if(noticeData.title == ""){
 			alert('제목을 입력해주세요.')
 			return;
-		}else if(formData.writer == ""){
+		}else if(noticeData.writer == ""){
 			alert('작성자를 입력해주세요.')
 			return;
-		}else if(formData.expYn == null){
+		}else if(noticeData.expYn == null){
 			alert('공개여부를 선택해주세요.')
 			return;
 		}else if(chkTyp.length == 0){
 			alert('게시물 유형을 선택해주세요.')
 			return;
-		}else if(formData.cmntYn == ""){
+		}else if(noticeData.cmntYn == ""){
 			alert('댓글 허용여부를 선택해주세요.')
 			return;
-		}else if(formData.cont == ""){
+		}else if(noticeData.cont == ""){
 			alert('내용을 입력해주세요.')
 			return;
 		}
 		
+		// 확장자 필터링
+		var regex = new RegExp("(.*?)\.(exe|sh|zip|alz|js)$"); // (.*?): 모든 "한글자"가 0또는 그 이상
+		const filename = $("#file")[0].files[0].name; // 파일명
+		console.log(filename);
+		if(regex.test(filename)){
+			alert("해당 종류의 파일은 업로드할 수 없습니다");
+			return;
+		}
+		
+		var formData = new FormData();
+		formData.append('file', $("#file")[0].files[0]);
+		formData.append('key', new Blob([JSON.stringify(noticeData)], {type: "application/json"}));
+		
 		console.log(formData);
 		
-		$.ajax({
+		/*$.ajax({
 			type: "POST",
 			url: "/updateNotice",
 			contentType: "application/json; charset=UTF-8",
@@ -225,6 +330,23 @@ function updateNotice(){
 			success: function(data){
 				alert('글이 수정되었습니다.');
 				//location.href="/detail?notiNo=[[${notice.notiNo}]]&page=[[${page}]]&srchTyp=[[${srchData.srchTyp}]]&keyword=[[${srchData.keyword}]]";
+				let url = "/detail";
+				url += "?notiNo=" + [[${notice.notiNo}]];
+				url += "&page=" + [[${page}]];
+				url += "&srchTyp=" + [[${srchData.srchTyp}]];
+				url += "&keyword=" + [[${srchData.keyword}]];
+				location.href=url;
+			}
+		});*/
+		
+		$.ajax({
+			type: "POST",
+			url: "/updateNotice",
+			processData: false,
+			contentType: false,
+			data: formData,
+			success: function(data){
+				alert('글이 수정되었습니다.');
 				let url = "/detail";
 				url += "?notiNo=" + [[${notice.notiNo}]];
 				url += "&page=" + [[${page}]];

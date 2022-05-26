@@ -116,11 +116,11 @@ $(function(){ //onLoad되면
         <div>내용</div>
         <textarea name="content" id="content" class="insert_box textarea"></textarea>
     </div>
-    <div>
+    <form enctype"multipart/form-data" id="fileForm">
     	<div class="insert_box">
-	    	<input type="file" id="uploadFile">
+	    	<input type="file" class="upload" id="file">
     	</div>
-    </div>
+    </form>
     
     <br>
     <input type="button" onclick="registNotice()" class="blue_button hover_button" th:value="등록">
@@ -136,9 +136,10 @@ $(function(){ //onLoad되면
 <script type="text/javascript">
 
 function test(){
-	let str = CKEDITOR.instances.content.getData();
-	console.log($.trim(str));
 	
+	var fileInput = $('#file')[0].files[0];
+	
+	console.log(fileInput);
 }
 
 
@@ -155,13 +156,18 @@ function registNotice(){
 		// 게시물 유형 ,로 나눈 문자열로 변환
 		var notiTyp = chkTyp.join(',');
 		
-		let cont = $.trim(CKEDITOR.instances.content.getData()); // 내용 앞 뒤 빈칸 제거
-		while(cont.startsWith("<br />")){ // 내용 앞부분 엔터 제거
+		let cont = CKEDITOR.instances.content.getData(); // 내용 앞 뒤 빈칸 제거
+		console.log(cont);
+		cont = $.trim(cont);
+		console.log(cont);
+		while(($.trim(cont)).startsWith("<br />")){ // 내용 앞부분 엔터 제거
 			cont = cont.substring(7,);
+			
 		}
+		console.log(cont);
 		
 		// 전송 데이터
-		var formData = {
+		var noticeData = {
 			title : $.trim($("#title").val()),
 			writer : $.trim($("#writer").val()),
 			expYn : $('input[name=expYn]:checked').val(),
@@ -172,29 +178,55 @@ function registNotice(){
 		}
 		
 		// Validation Check	
-		if(formData.title == ""){
+		if(noticeData.title == ""){
 			alert('제목을 입력해주세요.')
 			return;
-		}else if(formData.writer == ""){
+		}else if(noticeData.writer == ""){
 			alert('작성자를 입력해주세요.')
 			return;
-		}else if(formData.expYn == null){
+		}else if(noticeData.expYn == null){
 			alert('공개여부를 선택해주세요.')
 			return;
 		}else if(chkTyp.length == 0){
 			alert('게시물 유형을 선택해주세요.')
 			return;
-		}else if(formData.cmntYn == ""){
+		}else if(noticeData.cmntYn == ""){
 			alert('댓글 허용여부를 선택해주세요.')
 			return;
-		}else if(formData.cont == ""){
+		}else if(noticeData.cont == ""){
 			alert('내용을 입력해주세요.')
 			return;
 		}
 		
+		// 확장자 필터링
+		var regex = new RegExp("(.*?)\.(exe|sh|zip|alz|js)$"); // (.*?): 모든 "한글자"가 0또는 그 이상
+		const filename = $("#file")[0].files[0].name; // 파일명
+		console.log(filename);
+		if(regex.test(filename)){
+			alert("해당 종류의 파일은 업로드할 수 없습니다");
+			return;
+		}
+		
+		var formData = new FormData();
+		formData.append('file', $("#file")[0].files[0]);
+		formData.append('key', new Blob([JSON.stringify(noticeData)], {type: "application/json"}));
+		
 		console.log(formData);
 		
 		$.ajax({
+			type: "POST",
+			url: "/registNotice",
+			processData: false,
+			contentType: false,
+			data: formData,
+			success: function(data){
+				alert('글이 등록되었습니다.');
+				console.log(data);
+				location.href="/detail?notiNo=" + data;
+			}
+		})
+		
+		/*$.ajax({
 			type: "POST",
 			url: "/registNotice",
 			contentType: "application/json; charset=UTF-8",
@@ -204,7 +236,7 @@ function registNotice(){
 				console.log(data);
 				location.href="/detail?notiNo=" + data;
 			}
-		});
+		})*/;
 	
 	}else{
 		alert('글 등록을 취소하셨습니다.')

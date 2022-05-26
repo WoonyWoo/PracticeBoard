@@ -59,10 +59,65 @@ body {font-family: Arial, Helvetica, sans-serif; margin: 0px;}
   border-top:3px solid #093687 ;
   border-bottom: 1px solid #093687;
 }
+/*
+ * start of file css
+ */
+.filebox input[type="file"] {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	border: 0;
+}
+.filebox.bs3-primary .col-sm-10>label {
+	color: #fff;
+	background-color: #337ab7;
+	border-color: #2e6da4;
+}
+.filebox .col-sm-10>label {
+	display: inline-block;
+	padding: .5em .75em;
+	color: #999;
+	font-size: inherit;
+	font-weight: 600;
+	line-height: normal;
+	vertical-align: middle;
+	background-color: #fdfdfd;
+	cursor: pointer;
+	border: 1px solid #ebebeb;
+	border-bottom-color: #e2e2e2;
+	border-radius: .25em;
+}
+.filebox .upload-name {
+	display: inline-block;
+	width: 350px;
+	padding: .5em .75em;
+	/* label의 패딩값과 일치 */
+	font-size: inherit;
+	font-family: inherit;
+	line-height: normal;
+	vertical-align: middle;
+	background-color: #f5f5f5;
+	border: 1px solid #ebebeb;
+	border-bottom-color: #e2e2e2;
+	border-radius: .25em;
+	-webkit-appearance: none;
+	/* 네이티브 외형 감추기 */
+	-moz-appearance: none;
+	appearance: none;
+}
+.control-label {
+	display: inline-block;
+}
+/*
+ * end of file css
+ */
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
-<script src="/js/Comments.js"></script>
 
 <script type="text/javascript" th:inline="javascript">
 
@@ -75,7 +130,7 @@ $(function(){ //onLoad되면
   str = str.replaceAll("&amp;gt;", ">");
   str = str.replaceAll("&nbsp;", " ");
   str = str.replaceAll("&amp;", "&");*/
-  console.log(str);
+  //console.log(str);
   //document.getElementById('content').innerHTML = str;
   $('#content').html(str);
   
@@ -122,13 +177,34 @@ function deleteNotice(){
   	<input type="hidden" id="notiNo" th:value="${notice.notiNo}">
     <div th:text="${notice.title}" name="title" id="title_div"></div> 
     <div style="padding-top: 10px; padding-bottom: 10px;">
-      <div th:text="${notice.writer}" name="writer" style="float: left;"></div>
-      <div style="padding-right: 20px; padding-left: 20px; float: left;">|</div>
-      <div th:text="${notice.regDtime}" name="regdate" style="float: left;"></div>
+    	<div th:text="${notice.writer}" name="writer" style="float: left;"></div>
+    	<div style="padding-right: 20px; padding-left: 20px; float: left;">|</div>
+    	<div th:text="${notice.regDtime}" name="regdate" style="float: left;"></div>
     </div>
     <br><br><br><br>
     <!--<textarea th:text="${notice.cont}" id="content" name="content" style="width: 100%; height: 300px;" readonly></textarea>-->
     <div id="content" class="content" name="content" style="width: 100%; height: 300px;">dd</div>
+    <br>
+    
+    <!--/* 저장된 파일이 없는 파일 영역 */-->
+	<div th:if="${#lists.isEmpty( fileList )}" data-name="fileDiv" class="form-group filebox bs3-primary">
+		<label for="file_0" class="col-sm-2 control-label">파일</label>
+		<div class="col-sm-10">
+			<input type="text" class="upload-name" value="파일 없음" readonly />
+		</div>
+	</div>
+	
+	<!--/* 저장된 파일이 있는 파일 영역 */-->
+	<div th:unless="${#lists.isEmpty( fileList )}" th:each="row, status : ${fileList}" data-name="fileDiv" class="form-group filebox bs3-primary">
+		<label class="col-sm-2 control-label">파일</label>
+		<div class="col-sm-10">
+			<input type="hidden" id="fileId" th:value="${row.fileId}" />
+			<input type="text" class="upload-name" th:value="${row.originalName}" readonly />
+			<label class="control-label">다운로드</label>
+		</div>
+	</div>
+	
+    
     <br><br>
 
     <input th:if="${session.loginUsr != null}" class="blue_button hover_button" type="button" value="수정"

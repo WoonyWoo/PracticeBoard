@@ -52,6 +52,7 @@
     </select>
     
     <!-- 게시물 등록 -->
+    <!-- <insert id="insertNotice" parameterType="NoticeDto" useGeneratedKeys="true" keyProperty="notiNo"> -->
     <insert id="insertNotice" parameterType="NoticeDto">
     	INSERT INTO notice(
 			TITLE

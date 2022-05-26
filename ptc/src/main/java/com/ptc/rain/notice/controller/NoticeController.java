@@ -13,6 +13,7 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -23,11 +24,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.ptc.rain.notice.dto.NoticeDto;
+import com.ptc.rain.notice.dto.NoticeFileDto;
 import com.ptc.rain.notice.dto.PageList;
 import com.ptc.rain.notice.dto.PagingDto;
 import com.ptc.rain.notice.dto.SearchDto;
@@ -108,17 +112,20 @@ public class NoticeController {
 		
 		ModelAndView mv = new ModelAndView("layout/noticeDetail");
 
+		int currentPage = page.orElse(1);
+		
 		SearchDto sd = new SearchDto(); // 검색 데이터
 		sd.setSrchTyp(srchTyp);
 		sd.setKeyword(keyword);
 		
-		NoticeDto result = noticeService.selectNoticeOne(notiNo);
+		NoticeDto notice = noticeService.selectNoticeOne(notiNo);
 		
-		int currentPage = page.orElse(1);
+		List<NoticeFileDto> fileList = noticeService.selectNoticeFileList(notiNo);
 		
-		mv.addObject("notice", result);
+		mv.addObject("notice", notice);
 		mv.addObject("page", currentPage);
 		mv.addObject("srchData", sd);
+		mv.addObject("fileList", fileList);
 		
 		return mv;
 	}
@@ -140,21 +147,29 @@ public class NoticeController {
 		
 		int currentPage = page.orElse(1);
 		
+		List<NoticeFileDto> fileList = noticeService.selectNoticeFileList(notiNo);
+		
 		mv.addObject("notice", result);
 		mv.addObject("page", currentPage);
 		mv.addObject("srchData", sd);
+		mv.addObject("fileList", fileList);
 		
 		return mv;
 	}
 	
-	// 게시글 등록
+	// 게시글 등록(파일 포함)
 	@RequestMapping(value = "/registNotice", method = RequestMethod.POST)
-	public int noticeRegist(@RequestBody NoticeDto notice, Model model) throws Exception{
+	public int noticeRegist(@RequestPart(value = "key") NoticeDto notice, 
+			@RequestPart(value = "file", required = false) MultipartFile[] file) throws Exception{
 		
 		NoticeDto nd = new NoticeDto();
 		nd = notice;
 		
-		noticeService.insertNotice(nd);
+		boolean nResult =  noticeService.insertNotice(nd, file);
+		if(nResult == false) {
+			System.out.print("게시물 등록 실패");
+			return 0;
+		}
 		
 		int notiNo = nd.getNotiNo();
 		
@@ -164,12 +179,16 @@ public class NoticeController {
 	
 	// 게시글 수정
 	@RequestMapping(value = "/updateNotice", method = RequestMethod.POST)
-	public void noticeUpdate(@RequestBody NoticeDto notice) throws Exception{
+	public void noticeUpdate(@RequestPart(value = "key") NoticeDto notice,
+			@RequestPart(value = "file", required = false) MultipartFile[] file) throws Exception{
 		
 		NoticeDto nd = new NoticeDto();
 		nd = notice;
 		
-		noticeService.updateNotice(nd);
+		boolean nResult = noticeService.updateNotice(nd, file);
+		if(nResult == false) {
+			System.out.print("게시물 수정 실패");
+		}
 		
 	}
 	

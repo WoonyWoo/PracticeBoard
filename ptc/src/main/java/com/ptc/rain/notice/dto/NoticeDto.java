@@ -47,4 +47,11 @@ public class NoticeDto {
 	/* 페이징 */
 	private PagingDto paging;
 	
+	/* 파일 변경 여부 */
+	private String fileChangeYn;
+	
+	/* 파일 ID */
+	private int fileId;
+	
+	
 }

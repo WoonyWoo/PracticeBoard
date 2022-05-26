@@ -4,24 +4,36 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.ptc.rain.notice.dto.NoticeDto;
+import com.ptc.rain.notice.dto.NoticeFileDto;
 import com.ptc.rain.notice.dto.PageList;
 import com.ptc.rain.notice.dto.ResultDto;
 import com.ptc.rain.notice.dto.SearchDto;
+import com.ptc.rain.notice.mapper.NoticeFileMapper;
 import com.ptc.rain.notice.mapper.NoticeMapper;
+import com.ptc.rain.notice.util.FileUtils;
 
 @Service
 public class NoticeServiceImpl implements NoticeService{
 
 	@Autowired
 	private NoticeMapper noticeMapper;
+	
+	@Autowired
+	private NoticeFileMapper noticeFileMapper;
+	
+	@Autowired
+	private FileUtils fileUtils;
 	
 	// 게시글 목록 조회
 	@Override
@@ -39,25 +51,167 @@ public class NoticeServiceImpl implements NoticeService{
 
 	// 게시글 등록
 	@Override
-	public void insertNotice(NoticeDto noticeDto) throws Exception {
+	public boolean insertNotice(NoticeDto noticeDto) throws Exception {
+		int queryResult = 0;
 		
 	    try {
-	    	noticeMapper.insertNotice(noticeDto);
+	    	queryResult = noticeMapper.insertNotice(noticeDto);
 	    } catch(Exception e) {
 	    	e.printStackTrace();
 	    }
+	    
+	    return (queryResult == 1)? true : false;
+	}
+	
+	// 게시글 등록(파일 포함)
+	@Override
+	public boolean insertNotice(NoticeDto noticeDto, MultipartFile[] files) throws Exception {
+		int isRegistedNotice = 0;
+		int isRegistedFile = 0;
+		
+		try {
+			
+			isRegistedNotice = noticeMapper.insertNotice(noticeDto);
+			if(isRegistedNotice == 0) {
+				System.out.printf("게시물 저장 실패");
+				return false;
+			}
+			
+		}catch(DataAccessException de){
+			de.printStackTrace();
+			System.out.printf("데이터베이스 처리과정에 문제 생김");
+		}catch(Exception e) {
+			e.printStackTrace();
+		    System.out.printf("시스템 문제");
+		}
+		
+		if(files != null) { // file이 있다면
+			
+			List<NoticeFileDto> fileList = fileUtils.uploadFiles(files, noticeDto.getNotiNo()); // 파일 업로드 요청
+			if(CollectionUtils.isEmpty(fileList) == false) { // 파일 리스트가 존재한다면
+				
+				try {
+					
+					isRegistedFile = noticeFileMapper.insertNoticeFile(fileList); // 파일 정보 DB에 저장
+					if(isRegistedFile == 0) {
+						System.out.printf("게시물 저장 실패");
+						return false;
+					}
+					
+				}catch(DataAccessException de){
+					de.printStackTrace();
+					System.out.printf("데이터베이스 처리과정에 문제 생김");
+				}catch(Exception e) {
+					e.printStackTrace();
+					System.out.printf("시스템 문제");
+				}
+				
+			}
+			
+		}
+		
+		return true; 
+		
+	}
+	
+	// 파일 리스트 조회
+	@Override
+	public List<NoticeFileDto> selectNoticeFileList(int notiId) throws Exception {
+		int fileTotalCnt = noticeFileMapper.selectNoticeFileTotalCount(notiId);
+		if(fileTotalCnt < 1) {
+			return Collections.emptyList();
+		}
+
+		return noticeFileMapper.selectNoticeFileList(notiId);
 	}
 
 	// 게시글 수정
 	@Override
-	public void updateNotice(NoticeDto noticeDto) throws Exception {
+	public boolean updateNotice(NoticeDto noticeDto) throws Exception {
+		int queryResult = 0;
 		
 		try {
-	    	noticeMapper.updateNotice(noticeDto);
+			queryResult = noticeMapper.updateNotice(noticeDto);
 	    } catch(Exception e) {
 	    	e.printStackTrace();
 	    }
 		
+		return (queryResult == 1)? true : false;
+	}
+	
+	// 게시글 수정(파일 포함)
+	@Override
+	public boolean updateNotice(NoticeDto noticeDto, MultipartFile[] files) throws Exception {
+		int isUpdatedNotice = 0;
+		int isDeletedFile = 0;
+		int isRegistedFile = 0;
+		
+		// 게시물 수정
+		try {
+			
+			isUpdatedNotice = noticeMapper.updateNotice(noticeDto);
+			if(isUpdatedNotice == 0) {
+				System.out.printf("게시물 수정 실패");
+				return false;
+			}
+			
+		}catch(DataAccessException de){
+			de.printStackTrace();
+			System.out.printf("데이터베이스 처리과정에 문제 발생");
+		}catch(Exception e) {
+			e.printStackTrace();
+		    System.out.printf("시스템 문제");
+		}
+		
+		// 파일 수정 및 삭제
+		int fileId = noticeDto.getFileId(); // 넘어온 Form의 FileId
+		String fileChangeYn = noticeDto.getFileChangeYn(); // 첨부파일 변경여부
+		
+		if(fileChangeYn.equals("Y")) { // 첨부파일 변경이 있다면
+			
+			try {
+				
+				if(fileId != 0) { // 첨부파일이 존재했었다면
+					
+					isDeletedFile = noticeFileMapper.deleteNoticeFile(fileId); // 파일 DB 삭제
+					if(isDeletedFile == 0) { // 파일 DB 삭제 실패 false 리턴
+						System.out.printf("파일 DB 삭제 실패");
+						return false; 
+					}
+					
+				}
+				
+				if(files != null) { // 전송된 File이 존재한다면
+					
+					List<NoticeFileDto> fileList = fileUtils.uploadFiles(files, noticeDto.getNotiNo()); // 파일 업로드 요청
+					
+					if(CollectionUtils.isEmpty(fileList) == false) { // 파일 리스트가 존재한다면
+					
+						isRegistedFile = noticeFileMapper.insertNoticeFile(fileList); // 파일 DB에 저장
+						if(isRegistedFile == 0) { // 파일 DB에 저장 실패 false 리턴
+							System.out.printf("파일 DB 저장 실패");
+							return false; 
+						}
+					}else {
+						System.out.printf("FileUtils 문제 발생");
+						return false;
+					}
+					
+				}
+				
+			}catch(DataAccessException de){
+				de.printStackTrace();
+				System.out.printf("데이터베이스 처리과정에 문제 생김");
+			}catch(Exception e) {
+				e.printStackTrace();
+				System.out.printf("시스템 문제");
+			}
+			
+		}
+		
+				
+			
+		return true;
 	}
 
 	// 게시글 삭제
@@ -87,6 +241,7 @@ public class NoticeServiceImpl implements NoticeService{
 		
 		return selectNoticePageList;
 	}
+
 
 	/* 게시글 목록 조회(Pageable) - 전체 조회로 인한 속도 이슈 */
 	/*@Override

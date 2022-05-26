@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        
+<mapper namespace="com.ptc.rain.notice.mapper.NoticeFileMapper">
+
+	<!-- 게시물 파일 컬럼 -->
+	<sql id="noticeFileColumns">
+		FILE_ID
+		, NOTI_NO
+		, ORIGINAL_NAME
+		, SAVE_NAME
+		, FILE_SIZE
+		, DEL_YN
+		, REGR
+		, REG_DTIME
+		, DELR
+		, DEL_DTIME
+	</sql>
+	
+	<!-- 게시물 파일 등록 -->
+	<insert id="insertNoticeFile" parameterType="java.util.List">
+		INSERT INTO notice_file(
+			NOTI_NO
+			,ORIGINAL_NAME
+			,SAVE_NAME
+			,FILE_SIZE
+			,DEL_YN
+		) VALUES
+			<foreach collection="list" item="item" separator=",">
+			(
+				#{item.notiNo}
+				, #{item.originalName}
+				, #{item.saveName}
+				, #{item.fileSize}
+				, 'N'
+			)
+			</foreach>
+	</insert>
+	
+	<!-- 게시물 파일 상세조회 -->
+	<select id="selectNoticeFileDetail" parameterType="int" resultType="NoticeFileDto">
+		SELECT
+			<include refid="noticeFileColumns" />
+		FROM
+			notice_file
+		WHERE 1=1
+			AND DEL_YN = 'N'
+			AND FILE_ID = #{fileId} 
+	</select>
+	
+	<!-- 게시물 파일 삭제 -->
+	<update id="deleteNoticeFile" parameterType="int">
+		UPDATE notice_file
+		SET
+			DEL_YN = 'Y'
+			, DEL_DTIME = NOW()
+		WHERE 1=1
+			AND FILE_ID = #{fileId} 
+	</update>
+	
+	<!-- 게시물 파일들 조회 -->
+	<select id="selectNoticeFileList" parameterType="int" resultType="NoticeFileDto">
+		SELECT
+			<include refid="noticeFileColumns" />
+		FROM
+			notice_file
+		WHERE 1=1
+			AND DEL_YN = 'N'
+			AND NOTI_NO = #{notiNo}
+	</select>
+	
+	<!-- 게시물 파일 총 갯수 -->
+	<select id="selectNoticeFileTotalCount" parameterType="int" resultType="int">
+		SELECT
+			COUNT(*) AS cnt
+		FROM
+			notice_file
+		WHERE 1=1
+			AND DEL_YN = 'N'
+			AND NOTI_NO = #{notiNo} 
+	</select>
+    
+</mapper>
