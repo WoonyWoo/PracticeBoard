@@ -1,15 +1,25 @@
 package com.ptc.rain.notice.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.management.RuntimeErrorException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +27,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.datetime.DateFormatter;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -199,7 +210,19 @@ public class NoticeController {
 		NoticeDto nd = new NoticeDto();
 		nd = notice;
 		
-		noticeService.deleteNotice(nd.getNotiNo());
+		int notiNo = nd.getNotiNo();
+		int fileId = nd.getFileId();
+		
+		if(notiNo != 0 && fileId != 0) {
+			
+			boolean nResult = noticeService.deleteNotice(nd);
+			if(nResult == false) {
+				System.out.print("게시물 수정 실패");
+			}
+			
+		}else {
+			System.out.print("ID 전송 실패");
+		}
 		
 	}
 	
@@ -234,6 +257,44 @@ public class NoticeController {
 		
 		return mv;
 	}
+	
+	// 파일 다운로드
+	@RequestMapping(value = "/fileDownload", method = RequestMethod.GET)
+	public void fileDownload(@RequestParam int fileId , HttpServletResponse res) throws Exception {
+		// GET으로만 동작함
+		
+		NoticeFileDto fileInfo = noticeService.selectNoticeFileDetail(fileId);
+		if(fileInfo == null || "Y".equals(fileInfo.getDelYn())){
+			throw new RuntimeException("파일 정보를 찾을 수 없습니다.");
+		}
+		
+		String uploadDate = fileInfo.getRegDtime();
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		Date dd = df.parse(uploadDate);
+		uploadDate = new SimpleDateFormat("yyMMdd").format(dd); // yyMMdd 형태로 날짜 변경
+		
+		String uploadPath = Paths.get("C:","Users","rain","git","PracticeNotice","ptc","src","main","webapp","upload",uploadDate).toString(); // 파일이 저장되어있는 경로
+		
+		String filename = fileInfo.getOriginalName(); // 원본 파일명
+		File file = new File(uploadPath , fileInfo.getSaveName()); // 저장되어있는 파일 가져오기
+		
+		try {
+			
+			byte[] data = FileUtils.readFileToByteArray(file); // 파일 정보(file)를 파라미터로 전달 받아서 실제 파일 데이터를 byte[]형태로 변환
+			res.setContentType("application/octet-stream"); // 콘텐츠 타입 설정
+			res.setContentLength(data.length); // 콘텐츠 길이 설정
+			res.setHeader("Content-Transfer-Encoding", "binary"); // 인코딩
+			res.setHeader("Content-Disposition", "attachment; fileName=\"" + URLEncoder.encode(filename, "UTF-8") + "\";"); // UTF-8로 인코딩(안하면 파일을 다운로드하면 이상한 파일명이 됨)
+			
+			res.getOutputStream().write(data); // 파일 다운로드 시작
+			res.getOutputStream().flush(); // 파일 다운로드 완료
+			res.getOutputStream().close(); // 버퍼 정리
+			
+		}catch (Exception e) {
+			throw new RuntimeException("시스템에 문제가 발생하였습니다.");
+		}
+	}
+	
 	
 	// 게시글 목록 조회(Pageable) - 전체 조회라서 속도 이슈
 	/*@RequestMapping(value = "/listNotices", method = RequestMethod.GET)

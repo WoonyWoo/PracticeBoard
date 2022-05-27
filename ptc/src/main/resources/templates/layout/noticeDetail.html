@@ -166,6 +166,25 @@ function deleteNotice(){
 	}
 	
 }
+
+// 파일 다운로드
+function fileDownload(){
+	
+	// 전송 데이터
+	var formData = {
+		fileId: $("#fileId").val(),
+	}
+	
+	$.ajax({
+		type: "POST",
+		url: "/fileDownload",
+		contentType: "application/json; charset=UTF-8",
+		data: JSON.stringify(formData),
+		success: function(data){
+			alert('다운로드 완료');
+		}
+	});
+}
   
 </script>
 </head>
@@ -200,7 +219,7 @@ function deleteNotice(){
 		<div class="col-sm-10">
 			<input type="hidden" id="fileId" th:value="${row.fileId}" />
 			<input type="text" class="upload-name" th:value="${row.originalName}" readonly />
-			<label class="control-label">다운로드</label>
+			<label class="control-label" th:onclick="|location.href='@{/fileDownload(fileId=${row.fileId})}'|">다운로드</label>
 		</div>
 	</div>
 	

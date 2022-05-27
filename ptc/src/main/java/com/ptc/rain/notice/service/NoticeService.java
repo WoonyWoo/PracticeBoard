@@ -32,13 +32,16 @@ public interface NoticeService {
 	public boolean updateNotice(NoticeDto noticeDto, MultipartFile[] files) throws Exception;
 
 	/* 게시글 삭제 */
-	public void deleteNotice(int notiNo) throws Exception;
+	public boolean deleteNotice(NoticeDto noticeDto) throws Exception;
 	
 	/* 게시글 목록 조회(페이징) */
 	public PageList<NoticeDto> selectNoticePageList(SearchDto sd) throws Exception;
 	
 	/* 파일 리스트 조회 */
-	public List<NoticeFileDto> selectNoticeFileList(int notiId) throws Exception;
+	public List<NoticeFileDto> selectNoticeFileList(int notiNo) throws Exception;
+
+	/* 파일 1개 조회 */
+	public NoticeFileDto selectNoticeFileDetail(int fileId) throws Exception;
 	
 	/* 게시글 목록 조회(페이징, Pageable) */
 	//public Page<NoticeDto> findPaginated(Pageable pageable, NoticeDto nd) throws Exception;

@@ -232,10 +232,14 @@ $(function(){ //onLoad되면
 });
 
 function test(){
-	file = $(file); // input(type=file) 데이터
-	const filename = file[0].files[0].name; // 파일명
-	console.log(filename);
 		
+	let cont = CKEDITOR.instances.content.getData(); 
+	console.log(cont);
+	var con = cont.replace(/<[^>]*>/gi, '').trim(); // /g: 발생할 모든 pattern에 대한 전역검색, /i: 대/소문자 구분 안함, [^>]*>: '여는괄호' 다음에 '>'가 아닌 것들이 0번 이상 나오고 '>'가 나옴
+	console.log(con.length);
+	if(con == ""){
+		alert("밸리데이션 걸림");
+	}
 	
 }
 
@@ -266,9 +270,12 @@ function updateNotice(){
 		// 게시물 유형 ,로 나눈 문자열로 변환
 		var notiTyp = chkTyp.join(',');
 		
-		let cont = $.trim(CKEDITOR.instances.content.getData()); // 내용 앞 뒤 빈칸 제거
-		while(cont.startsWith("<br />")){ // 내용 앞부분 엔터 제거
-			cont = cont.substring(7,);
+		// Editor Data Vaildation
+		let cont = CKEDITOR.instances.content.getData(); // Editor 입력된 Data
+		let temp = cont.replace(/<[^>]*>/gi, '').trim(); // /g: 발생할 모든 pattern에 대한 전역검색, /i: 대/소문자 구분 안함, [^>]*>: '여는괄호' 다음에 '>'가 아닌 것들이 0번 이상 나오고 '>'가 나옴
+		if(temp.length == 0){
+			alert('내용을 입력해주세요.');
+			return;
 		}
 		
 		// 전송 데이터
@@ -288,29 +295,29 @@ function updateNotice(){
 		
 		// Validation Check	
 		if(noticeData.title == ""){
-			alert('제목을 입력해주세요.')
+			alert('제목을 입력해주세요.');
 			return;
 		}else if(noticeData.writer == ""){
-			alert('작성자를 입력해주세요.')
+			alert('작성자를 입력해주세요.');
 			return;
 		}else if(noticeData.expYn == null){
-			alert('공개여부를 선택해주세요.')
+			alert('공개여부를 선택해주세요.');
 			return;
 		}else if(chkTyp.length == 0){
-			alert('게시물 유형을 선택해주세요.')
+			alert('게시물 유형을 선택해주세요.');
 			return;
 		}else if(noticeData.cmntYn == ""){
-			alert('댓글 허용여부를 선택해주세요.')
-			return;
-		}else if(noticeData.cont == ""){
-			alert('내용을 입력해주세요.')
+			alert('댓글 허용여부를 선택해주세요.');
 			return;
 		}
+		/*else if(noticeData.cont == ""){
+			alert('내용을 입력해주세요.');
+			return;
+		}*/
 		
 		// 확장자 필터링
 		var regex = new RegExp("(.*?)\.(exe|sh|zip|alz|js)$"); // (.*?): 모든 "한글자"가 0또는 그 이상
-		const filename = $("#file")[0].files[0].name; // 파일명
-		console.log(filename);
+		const filename = $("#filename").val(); // 파일명
 		if(regex.test(filename)){
 			alert("해당 종류의 파일은 업로드할 수 없습니다");
 			return;
@@ -321,7 +328,6 @@ function updateNotice(){
 		formData.append('key', new Blob([JSON.stringify(noticeData)], {type: "application/json"}));
 		
 		console.log(formData);
-		
 		/*$.ajax({
 			type: "POST",
 			url: "/updateNotice",
@@ -379,6 +385,7 @@ function deleteNotice(){
 	// 전송 데이터
 	var formData = {
 		notiNo: $("#notiNo").val(),
+		fileId : $('#fileId').val(),
 	}
 	
 	if(confirm('글을 삭제하시겠습니까?')){

@@ -116,13 +116,19 @@ public class NoticeServiceImpl implements NoticeService{
 	
 	// 파일 리스트 조회
 	@Override
-	public List<NoticeFileDto> selectNoticeFileList(int notiId) throws Exception {
-		int fileTotalCnt = noticeFileMapper.selectNoticeFileTotalCount(notiId);
+	public List<NoticeFileDto> selectNoticeFileList(int notiNo) throws Exception {
+		int fileTotalCnt = noticeFileMapper.selectNoticeFileTotalCount(notiNo);
 		if(fileTotalCnt < 1) {
 			return Collections.emptyList();
 		}
 
-		return noticeFileMapper.selectNoticeFileList(notiId);
+		return noticeFileMapper.selectNoticeFileList(notiNo);
+	}
+	
+	// 파일 1개 조회
+	@Override
+	public NoticeFileDto selectNoticeFileDetail(int fileId) throws Exception {
+		return noticeFileMapper.selectNoticeFileDetail(fileId);
 	}
 
 	// 게시글 수정
@@ -216,13 +222,47 @@ public class NoticeServiceImpl implements NoticeService{
 
 	// 게시글 삭제
 	@Override
-	public void deleteNotice(int notiNo) throws Exception {
+	public boolean deleteNotice(NoticeDto noticeDto) throws Exception {
+		int isDeletedNotice = 0;
+		int isDeletedFile = 0;
 
+		// 게시물 삭제
 		try {
-	    	noticeMapper.deleteNotice(notiNo);
-	    } catch(Exception e) {
-	    	e.printStackTrace();
-	    }
+			
+			isDeletedNotice = noticeMapper.deleteNotice(noticeDto.getNotiNo());
+			if(isDeletedNotice == 0) {
+				System.out.printf("게시물 삭제 실패");
+				return false;
+			}
+			
+		}catch(DataAccessException de){
+			de.printStackTrace();
+			System.out.printf("데이터베이스 처리과정에 문제 발생");
+		}catch(Exception e) {
+			e.printStackTrace();
+		    System.out.printf("시스템 문제");
+		}
+		
+		// 파일 삭제
+		int fileId = noticeDto.getFileId(); // 넘어온 Form의 FileId
+		
+		try {
+			
+			isDeletedFile = noticeFileMapper.deleteNoticeFile(fileId); // 파일 DB 삭제
+			if(isDeletedFile == 0) { // 파일 DB 삭제 실패 false 리턴
+				System.out.printf("파일 DB 삭제 실패");
+				return false; 
+			}
+			
+		}catch(DataAccessException de){
+			de.printStackTrace();
+			System.out.printf("데이터베이스 처리과정에 문제 발생");
+		}catch(Exception e) {
+			e.printStackTrace();
+		    System.out.printf("시스템 문제");
+		}
+		
+		return true;
 		
 	}
 

@@ -25,7 +25,7 @@ public interface NoticeMapper {
 	public int updateNotice(NoticeDto noticeDto) throws Exception;
 
 	/* 게시글 삭제 */
-	public void deleteNotice(int notiNo) throws Exception;
+	public int deleteNotice(int notiNo) throws Exception;
 	
 	/* 게시글 전체 갯수 조회 */
 	public int selectNoticeListTotalCount(SearchDto sd) throws Exception;
