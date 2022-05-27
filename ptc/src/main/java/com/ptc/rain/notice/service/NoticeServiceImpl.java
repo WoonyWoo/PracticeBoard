@@ -220,7 +220,7 @@ public class NoticeServiceImpl implements NoticeService{
 		return true;
 	}
 
-	// 게시글 삭제
+	// 게시글 삭제(파일 포함)
 	@Override
 	public boolean deleteNotice(NoticeDto noticeDto) throws Exception {
 		int isDeletedNotice = 0;

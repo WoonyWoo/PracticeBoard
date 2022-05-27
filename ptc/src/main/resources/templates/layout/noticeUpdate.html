@@ -380,32 +380,5 @@ function cancelUpdate(){
 	
 }
 
-function deleteNotice(){
-	
-	// 전송 데이터
-	var formData = {
-		notiNo: $("#notiNo").val(),
-		fileId : $('#fileId').val(),
-	}
-	
-	if(confirm('글을 삭제하시겠습니까?')){
-		
-		$.ajax({
-			type: "POST",
-			url: "/deleteNotice",
-			contentType: "application/json; charset=UTF-8",
-			data: JSON.stringify(formData),
-			success: function(data){
-				alert('글이 삭제되었습니다.');
-				location.href="/listPage";
-			}
-		});
-	
-	}else{
-		alert('글 삭제를 취소하셨습니다.')
-	}
-	
-}
-
 </script>
 </html>

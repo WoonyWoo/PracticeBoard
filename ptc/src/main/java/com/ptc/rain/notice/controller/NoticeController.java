@@ -205,10 +205,7 @@ public class NoticeController {
 	
 	// 게시글 삭제
 	@RequestMapping(value = "/deleteNotice", method = RequestMethod.POST)
-	public void noticeDelete(@RequestBody NoticeDto notice) throws Exception{
-		
-		NoticeDto nd = new NoticeDto();
-		nd = notice;
+	public void noticeDelete(@RequestBody NoticeDto nd) throws Exception{
 		
 		int notiNo = nd.getNotiNo();
 		int fileId = nd.getFileId();
