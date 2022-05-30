@@ -5,11 +5,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,11 +12,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ptc.rain.notice.dto.NoticeDto;
 import com.ptc.rain.notice.dto.NoticeFileDto;
 import com.ptc.rain.notice.dto.PageList;
-import com.ptc.rain.notice.dto.ResultDto;
 import com.ptc.rain.notice.dto.SearchDto;
 import com.ptc.rain.notice.mapper.NoticeFileMapper;
 import com.ptc.rain.notice.mapper.NoticeMapper;
-import com.ptc.rain.notice.util.FileUtils;
+//import com.ptc.rain.notice.util.FileUtils;
+import com.ptc.rain.notice.util.FileUtils2;
 
 @Service
 public class NoticeServiceImpl implements NoticeService{
@@ -32,8 +27,8 @@ public class NoticeServiceImpl implements NoticeService{
 	@Autowired
 	private NoticeFileMapper noticeFileMapper;
 	
-	@Autowired
-	private FileUtils fileUtils;
+	//@Autowired
+	//private FileUtils fileUtils;
 	
 	// 게시글 목록 조회
 	@Override
@@ -87,7 +82,9 @@ public class NoticeServiceImpl implements NoticeService{
 		
 		if(files != null) { // file이 있다면
 			
-			List<NoticeFileDto> fileList = fileUtils.uploadFiles(files, noticeDto.getNotiNo()); // 파일 업로드 요청
+			//List<NoticeFileDto> fileList = fileUtils.uploadFiles(files, noticeDto.getNotiNo()); // 파일 업로드 요청
+			List<NoticeFileDto> fileList = FileUtils2.uploadFiles(files, noticeDto.getNotiNo()); // 파일 업로드 요청
+			
 			if(CollectionUtils.isEmpty(fileList) == false) { // 파일 리스트가 존재한다면
 				
 				try {
@@ -189,7 +186,8 @@ public class NoticeServiceImpl implements NoticeService{
 				
 				if(files != null) { // 전송된 File이 존재한다면
 					
-					List<NoticeFileDto> fileList = fileUtils.uploadFiles(files, noticeDto.getNotiNo()); // 파일 업로드 요청
+					//List<NoticeFileDto> fileList = fileUtils.uploadFiles(files, noticeDto.getNotiNo()); // 파일 업로드 요청
+					List<NoticeFileDto> fileList = FileUtils2.uploadFiles(files, noticeDto.getNotiNo()); // 파일 업로드 요청
 					
 					if(CollectionUtils.isEmpty(fileList) == false) { // 파일 리스트가 존재한다면
 					

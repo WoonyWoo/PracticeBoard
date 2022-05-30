@@ -17,21 +17,20 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ptc.rain.notice.dto.NoticeFileDto;
 import com.ptc.rain.notice.exception.NoticeFileException;
 
-@Component
-public class FileUtils {
+public class FileUtils2 {
 	
 
 	/** 오늘 날짜 */
-	private final String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
+	private static final String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
 
 	/** 업로드 경로 */
-	private final String uploadPath = Paths.get("C:","Users","rain","git","PracticeNotice","ptc","src","main","webapp","upload",today).toString();
+	private static final String uploadPath = Paths.get("C:","Users","rain","git","PracticeNotice","ptc","src","main","webapp","upload",today).toString();
 
 	/**
 	 * 서버에 생성할 파일명을 처리할 랜덤 문자열 반환
 	 * @return 랜덤 문자열
 	 */
-	private final String getRandomString() {
+	private static final String getRandomString() {
 		return UUID.randomUUID().toString().replaceAll("-", "");
 	}
 
@@ -41,7 +40,7 @@ public class FileUtils {
 	 * @param notiNo - 게시글 번호
 	 * @return 업로드 파일 목록
 	 */
-	public List<NoticeFileDto> uploadFiles(MultipartFile[] files, int notiNo) {
+	public static List<NoticeFileDto> uploadFiles(MultipartFile[] files, int notiNo) {
 
 		/* 파일이 비어있으면 비어있는 리스트 반환 */
 		if (files[0].getSize() < 1) {
